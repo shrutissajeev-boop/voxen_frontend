@@ -80,7 +80,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public - Commented out to include public folder in git
 
 # Storybook build outputs
 .out
