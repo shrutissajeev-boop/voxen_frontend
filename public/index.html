@@ -862,7 +862,7 @@
                 <!-- Login Form -->
                 <form class="form" id="loginForm">
                     <div class="input-group">
-                        <input type="email" class="input-field" name="email" placeholder="Email address" required>
+                        <input type="text" class="input-field" name="fullName" placeholder="Full name" required>
                     </div>
                     <div class="input-group">
                         <input type="password" class="input-field" name="password" placeholder="Password" required>
@@ -874,7 +874,7 @@
                         <span>or continue with</span>
                     </div>
                     
-                    <a href="/auth/google" class="google-btn">
+                    <a href="/api/auth/google" class="google-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -910,7 +910,7 @@
                         <span>or continue with</span>
                     </div>
                     
-                    <a href="/auth/google" class="google-btn">
+                    <a href="/api/auth/google" class="google-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1203,6 +1203,125 @@
             const text = title.querySelector('span');
             text.style.width = '0';
         });
+    </script>
+
+    <!-- Google Authentication Handler -->
+    <script>
+        (function() {
+            // Check if already logged in
+            const authToken = localStorage.getItem('token');
+            const userJson = localStorage.getItem('user');
+            
+            if (authToken) {
+                console.log('User already authenticated, redirecting to home...');
+                window.location.href = '/home';
+                return;
+            }
+
+            // Auto-fill login form if user data exists (from previous Google login)
+            if (userJson) {
+                try {
+                    const user = JSON.parse(userJson);
+                    
+                    // Wait for form to be available
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const loginForm = document.getElementById('loginForm');
+                        if (loginForm) {
+                            // Find input fields
+                            const nameInput = loginForm.querySelector('input[name="fullName"]') || 
+                                            loginForm.querySelector('input[name="email"]');
+                            const passwordInput = loginForm.querySelector('input[name="password"]');
+                            
+                            // Auto-fill with user data
+                            if (nameInput && user.full_name) {
+                                nameInput.value = user.full_name;
+                                nameInput.style.borderColor = '#4CAF50';
+                            }
+                            
+                            // For Google users, auto-fill and provide quick sign-in
+                            if (passwordInput && user.google_id) {
+                                // Fill with a dummy password (won't be used for Google users)
+                                passwordInput.value = '••••••••';
+                                passwordInput.type = 'password';
+                                passwordInput.disabled = true;
+                                passwordInput.style.opacity = '0.6';
+                                
+                                // Add a note with auto-sign-in button
+                                const noteContainer = document.createElement('div');
+                                noteContainer.style.cssText = 'margin-top: 8px; text-align: center;';
+                                
+                                const note = document.createElement('div');
+                                note.style.cssText = 'color: #4CAF50; font-size: 12px; margin-bottom: 8px;';
+                                note.textContent = '✓ Previously signed in with Google';
+                                
+                                const autoSignInBtn = document.createElement('button');
+                                autoSignInBtn.type = 'button';
+                                autoSignInBtn.textContent = 'Continue as ' + (user.full_name || 'User');
+                                autoSignInBtn.style.cssText = `
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: transform 0.2s;
+                                `;
+                                
+                                autoSignInBtn.addEventListener('mouseenter', function() {
+                                    this.style.transform = 'scale(1.05)';
+                                });
+                                
+                                autoSignInBtn.addEventListener('mouseleave', function() {
+                                    this.style.transform = 'scale(1)';
+                                });
+                                
+                                autoSignInBtn.addEventListener('click', function() {
+                                    // Redirect directly to home since user is authenticated
+                                    console.log('Auto-signing in with Google credentials...');
+                                    window.location.href = '/home';
+                                });
+                                
+                                noteContainer.appendChild(note);
+                                noteContainer.appendChild(autoSignInBtn);
+                                passwordInput.parentElement.appendChild(noteContainer);
+                                
+                                // Hide the regular submit button
+                                const submitBtn = document.getElementById('loginSubmitBtn');
+                                if (submitBtn) {
+                                    submitBtn.style.display = 'none';
+                                }
+                            }
+                            
+                            console.log('✓ Auto-filled login form with Google user data');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error auto-filling form:', error);
+                }
+            }
+
+            // Handle authentication errors from URL
+            const params = new URLSearchParams(window.location.search);
+            const authError = params.get('error');
+            if (authError) {
+                let errorMessage = 'Authentication failed. Please try again.';
+                if (authError === 'google_auth_failed') {
+                    errorMessage = 'Google authentication failed. Please try again.';
+                } else if (authError === 'not_authenticated') {
+                    errorMessage = 'Please log in to continue.';
+                }
+                
+                // Show error message
+                setTimeout(() => {
+                    alert(errorMessage);
+                }, 100);
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        })();
     </script>
 </body>
 </html>

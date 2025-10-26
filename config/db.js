@@ -79,8 +79,10 @@ const createTables = async () => {
             `);
             console.log('✅ Embeddings table created/verified with vector support');
         } catch (vectorErr) {
-            console.log('⚠️  Vector extension not available - skipping embeddings table');
-            console.log('   To enable vector search, install pgvector: https://github.com/pgvector/pgvector');
+            // Vector extension not available - this is optional
+            // Uncomment below to see the warning:
+            // console.log('⚠️  Vector extension not available - skipping embeddings table');
+            // console.log('   To enable vector search, install pgvector: https://github.com/pgvector/pgvector');
         }
 
         console.log('✅ All core tables created successfully');

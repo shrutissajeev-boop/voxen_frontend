@@ -741,39 +741,43 @@
             const token = urlParams.get('token');
             const userParam = urlParams.get('user');
             
+            // Check localStorage for token (from home page login)
+            const storedToken = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
+            
             // Add debugging
-            console.log('Token:', token);
-            console.log('User param:', userParam);
-            console.log('Session token:', sessionStorage.getItem('token'));
+            console.log('URL Token:', token);
+            console.log('URL User param:', userParam);
+            console.log('LocalStorage token:', storedToken);
+            console.log('LocalStorage user:', storedUser);
             
             if (token && userParam) {
+                // From URL parameters (direct OAuth callback)
                 currentUser = JSON.parse(decodeURIComponent(userParam));
                 displayUserInfo(currentUser);
-                // Store token for API calls
-                sessionStorage.setItem('token', token);
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(currentUser));
                 initializeChat();
                 initializeVoiceRecognition();
                 generateMoreStars();
-            } else if (sessionStorage.getItem('token') || token) {
-                // If we have either a session token or URL token, try to fetch profile
-                fetchUserProfile();
+            } else if (storedToken && storedUser) {
+                // From localStorage (logged in user navigating from home)
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    displayUserInfo(currentUser);
+                    initializeChat();
+                    initializeVoiceRecognition();
+                    generateMoreStars();
+                    console.log('✅ User loaded from localStorage:', currentUser);
+                } catch (error) {
+                    console.error('Error parsing stored user:', error);
+                    // Redirect to login if data is corrupted
+                    window.location.href = '/?error=invalid_session';
+                }
             } else {
-                // Add some debugging and delay before redirect
-                console.log('⚡ Dev mode: Skipping authentication');
-
-                const devUser = {
-                    username: "dev-user",
-                    full_name: "Developer Mode"
-                };
-                
-                currentUser = devUser;
-                sessionStorage.setItem("token","dev-token");
-                displayUserInfo(devUser);
-
-                initializeChat();
-                initializeVoiceRecognition();
-                generateMoreStars();
-                 // Don't initialize chat components
+                // No authentication found - redirect to login
+                console.log('⚠️ No authentication found, redirecting to login...');
+                window.location.href = '/?error=not_authenticated';
             }
         });
 
