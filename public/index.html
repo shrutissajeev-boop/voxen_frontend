@@ -862,7 +862,7 @@
                 <!-- Login Form -->
                 <form class="form" id="loginForm">
                     <div class="input-group">
-                        <input type="text" class="input-field" name="fullName" placeholder="Full name" required>
+                        <input type="email" class="input-field" name="email" placeholder="Email address" required>
                     </div>
                     <div class="input-group">
                         <input type="password" class="input-field" name="password" placeholder="Password" required>
@@ -1066,7 +1066,7 @@
             setLoading(loginSubmitBtn, true);
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1134,7 +1134,7 @@
             setLoading(signupSubmitBtn, true);
 
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -657,7 +657,7 @@
             <div class="logo"><span>VOXEN</span></div>
             <div class="nav-links">
                 <a href="/home" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Chat</a>
+                <a href="/chat" class="nav-link">Chat</a>
                 <a href="/home#testimonials" class="nav-link">Reviews</a>
             </div>
             <div class="user-section">
@@ -701,7 +701,7 @@
                 </div>
             </div>
         </div>
-        <audio id="audioPlayer" controls style="display:none; margin-top:10px;"></audio>
+        <audio id="audioPlayer" style="display:none"></audio>
         <div id="chatBox" class="chat-box"></div>
         <!-- Chat Input -->
         <div class="chat-input-container">
@@ -727,19 +727,87 @@
         </div>
     </div>
 
-<audio id="audioPlayer" style="display:none;"></audio>
-
     <script>
         let currentUser = null;
         let isRecording = false;
         let recognition = null;
         let isTyping = false;
+        const API_BASE = '';
+        let audioUnlocked = false;
+        let audioPlayerEl = null;
+        let voicesLoaded = false;
+
+        function speakText(text) {
+            if (!window.speechSynthesis || !text) return;
+            const utter = new SpeechSynthesisUtterance(text);
+            // pick a reasonable default voice when available
+            if (!voicesLoaded) {
+                window.speechSynthesis.onvoiceschanged = () => { voicesLoaded = true; };
+            }
+            const allVoices = window.speechSynthesis.getVoices();
+            if (allVoices && allVoices.length) {
+                const en = allVoices.find(v => /en/i.test(v.lang)) || allVoices[0];
+                if (en) utter.voice = en;
+            }
+            utter.rate = 1.0;
+            utter.pitch = 1.0;
+            window.speechSynthesis.speak(utter);
+        }
+
+        // Ensure audio can play after a user gesture
+        function unlockAudioOnce() {
+            if (audioUnlocked) return;
+            audioUnlocked = true;
+            try {
+                if (!audioPlayerEl) {
+                    audioPlayerEl = document.getElementById('audioPlayer');
+                    if (!audioPlayerEl) {
+                        audioPlayerEl = document.createElement('audio');
+                        audioPlayerEl.id = 'audioPlayer';
+                        audioPlayerEl.style.display = 'none';
+                        document.body.appendChild(audioPlayerEl);
+                    }
+                }
+                // Play a tiny silent buffer to unlock
+                const silentWav =
+                    'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='; // ~44-byte silence
+                audioPlayerEl.muted = true;
+                audioPlayerEl.src = silentWav;
+                const p = audioPlayerEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => {
+                        audioPlayerEl.pause();
+                        audioPlayerEl.currentTime = 0;
+                        audioPlayerEl.muted = false;
+                    }).catch(() => {
+                        // ignore; will try again on next gesture
+                        audioUnlocked = false;
+                    });
+                }
+            } catch (_) {
+                audioUnlocked = false;
+            }
+        }
+
+        // Unlock on first meaningful gestures
+        ['click','keydown','touchstart'].forEach(evt => {
+            window.addEventListener(evt, unlockAudioOnce, { once: true, passive: true });
+        });
 
         // Check authentication and load user data
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
             const userParam = urlParams.get('user');
+            
+            // Prevent any form submission navigation
+            document.querySelectorAll('form').forEach(function(frm){
+                frm.addEventListener('submit', function(e){ e.preventDefault(); });
+            });
+            const sendBtnEl = document.getElementById('sendBtn');
+            if (sendBtnEl) sendBtnEl.setAttribute('type','button');
+            const chatInputEl = document.getElementById('chatInput');
+            if (chatInputEl && chatInputEl.form) chatInputEl.form.setAttribute('novalidate','');
             
             // Check localStorage for token (from home page login)
             const storedToken = localStorage.getItem('token');
@@ -827,7 +895,10 @@
         function initializeChat() {
             const chatInput = document.getElementById('chatInput');
             const sendBtn = document.getElementById('sendBtn');
-            
+
+            // Ensure audio unlocked when user tries to send
+            sendBtn.addEventListener('click', unlockAudioOnce, { once: true });
+
             // Auto-resize textarea
             chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
@@ -906,70 +977,175 @@
 
 async function sendMessage() {
     const input = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
     const message = input.value.trim();
     if (!message) return;
 
-    // Show user message in chat box
-    const chatBox = document.getElementById("chatBox");
-    const userMsg = document.createElement("div");
-    userMsg.textContent = "📩 User: " + message;
-    chatBox.appendChild(userMsg);
+    const chatMessagesEl = document.getElementById('chatMessages');
+
+    // Render user message into styled messages list
+    const userWrap = document.createElement('div');
+    userWrap.className = 'message user';
+    userWrap.innerHTML = `
+        <div class="message-avatar">You</div>
+        <div class="message-content">
+            <div class="message-bubble">${message.replace(/</g,'&lt;')}</div>
+            <div class="message-time">now</div>
+        </div>
+    `;
+    chatMessagesEl.appendChild(userWrap);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 
     input.value = "";
+    sendBtn.disabled = true;
 
     try {
-        // Send message to backend
-        const res = await fetch("http://127.0.0.1:8000/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message })
-        });
-
-        if (!res.ok) {
-            throw new Error("❌ Failed to get response from backend");
+        // Send message to backend with retries
+        let attempts = 0;
+        const maxAttempts = 3;
+        let res;
+        
+        // First verify server is responding
+        try {
+            const testRes = await fetch('/api/test');
+            if (!testRes.ok) {
+                throw new Error(`Server health check failed: ${testRes.status}`);
+            }
+            console.log('Server is responding');
+        } catch (e) {
+            console.error('Server connection test failed:', e);
+            throw new Error('Cannot connect to server. Please check if server is running.');
         }
 
-        // Parse JSON response
-        const data = await res.json();
-        console.log("✅ Server response:", data);
+        // Now try the chat request
+        try {
+            const payload = {
+                message: message
+            };
+            console.log('Sending chat request:', payload);
+            
+            res = await fetch('/api/chat', {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                const errorDetails = {
+                    status: res.status,
+                    statusText: res.statusText,
+                    body: errorText
+                };
+                console.error('Chat request failed:', errorDetails);
+                
+                // Add error message to chat
+                const errWrap = document.createElement('div');
+                errWrap.className = 'message system';
+                errWrap.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">Error ${res.status}: ${errorText}</div>
+                    </div>
+                `;
+                chatMessagesEl.appendChild(errWrap);
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+                
+                throw new Error(`Request failed: ${res.status}`);
+            }
+        } catch (e) {
+            console.error('Chat request error:', e);
+            // Don't throw, we've already handled the error UI
+            return;
+        }
 
-        // Show bot text reply
-        const botMsg = document.createElement("div");
-        botMsg.innerHTML = `<b>🤖 Bot:</b> ${data.reply || "(no text reply)"}`;
-        chatBox.appendChild(botMsg);
+        if (!res.ok) {
+            const txt = await res.text().catch(() => '');
+            throw new Error(`❌ Failed to get response from backend (${res.status}) ${txt}`);
+        }
 
-        // Play bot audio reply
-        if (data.audio_base64) {
+        // Resilient parse: prefer JSON, otherwise try to coerce
+        let data;
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+        try {
+            if (ct.includes('application/json')) {
+                data = await res.json();
+            } else {
+                const txt = await res.text();
+                try { data = JSON.parse(txt); } catch { data = { reply: txt, audio_base64: '' }; }
+            }
+        } catch (e) {
+            // Last resort: show generic reply
+            data = { reply: 'Received response, but could not parse it.', audio_base64: '' };
+        }
+        console.log("✅ Server response (parsed):", data);
+
+        // Render bot reply into styled messages list
+        const replyText = (data && typeof data.reply === 'string') ? data.reply : String(data?.reply ?? '(no text reply)');
+        const botWrap = document.createElement('div');
+        botWrap.className = 'message ai';
+        botWrap.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <div class="message-bubble">${replyText.replace(/</g,'&lt;')}</div>
+                <div class="message-time">now</div>
+            </div>
+        `;
+        chatMessagesEl.appendChild(botWrap);
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+        // Play bot audio reply if present
+        if (data && data.audio_base64) {
             try {
                 const audioBytes = Uint8Array.from(atob(data.audio_base64), c => c.charCodeAt(0));
                 const blob = new Blob([audioBytes], { type: "audio/wav" });
                 const url = URL.createObjectURL(blob);
 
-                // Reuse or create audio player
-                let audioPlayer = document.getElementById("audioPlayer");
-                if (!audioPlayer) {
-                    audioPlayer = document.createElement("audio");
-                    audioPlayer.id = "audioPlayer";
-                    audioPlayer.controls = true; // optional: gives play/pause UI
-                    document.body.appendChild(audioPlayer);
+                if (!audioPlayerEl) {
+                    audioPlayerEl = document.getElementById('audioPlayer');
+                    if (!audioPlayerEl) {
+                        audioPlayerEl = document.createElement('audio');
+                        audioPlayerEl.id = 'audioPlayer';
+                        audioPlayerEl.style.display = 'none';
+                        document.body.appendChild(audioPlayerEl);
+                    }
                 }
 
-                audioPlayer.src = url;
-                audioPlayer.play().catch(err => {
-                    console.warn("⚠️ Autoplay blocked, user interaction required:", err);
-                });
+                audioPlayerEl.src = url;
+                const p = audioPlayerEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.catch(err => {
+                        console.warn("⚠️ Autoplay blocked, user interaction required:", err);
+                        // As a fallback, speak via browser TTS
+                        speakText(replyText);
+                    });
+                }
             } catch (err) {
                 console.error("⚠️ Audio decode error:", err);
+                // Fallback to browser TTS
+                speakText(replyText);
             }
         } else {
-            console.warn("⚠️ No audio in response, skipping playback.");
+            // No audio from backend: use browser TTS so playback is never skipped
+            speakText(replyText);
         }
 
     } catch (error) {
         console.error("❌ Error:", error);
-        const errorMsg = document.createElement("div");
-        errorMsg.textContent = "⚠️ Error connecting to backend!";
-        chatBox.appendChild(errorMsg);
+        const errWrap = document.createElement('div');
+        errWrap.className = 'message ai';
+        errWrap.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <div class="message-bubble">⚠️ Error connecting to backend!</div>
+                <div class="message-time">now</div>
+            </div>
+        `;
+        chatMessagesEl.appendChild(errWrap);
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    } finally {
+        sendBtn.disabled = false;
     }
 }
 
@@ -977,7 +1153,7 @@ async function sendMessage() {
 document.getElementById("sendBtn").addEventListener("click", sendMessage);
 document.getElementById("chatInput").addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault(); // prevent new line
+        e.preventDefault();
         sendMessage();
     }
 });
