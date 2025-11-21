@@ -4,11 +4,11 @@ const pool = require("../config/db");
 const getReviews = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 100; // Increased to show all reviews
     const offset = (page - 1) * limit;
 
     const reviews = await pool.query(
-      `SELECT r.*, u.profile_picture 
+      `SELECT r.*, u.profile_picture, u.full_name, u.username
        FROM reviews r
        LEFT JOIN users u ON r.user_id = u.id
        ORDER BY r.created_at DESC
@@ -47,7 +47,7 @@ const createReview = async (req, res) => {
     }
 
     const userResult = await pool.query(
-      "SELECT full_name, username FROM users WHERE id = $1",
+      "SELECT full_name, username, profile_picture FROM users WHERE id = $1",
       [req.user.id]
     );
 
@@ -58,13 +58,18 @@ const createReview = async (req, res) => {
     const user = userResult.rows[0];
     const userName = user.full_name || user.username;
 
+    // Check if user already has a review
     const existingReview = await pool.query(
       "SELECT id FROM reviews WHERE user_id = $1",
       [req.user.id]
     );
 
     if (existingReview.rows.length > 0) {
-      return res.status(400).json({ error: "You have already submitted a review" });
+      return res.status(400).json({ 
+        error: "You have already submitted a review",
+        hasReview: true,
+        reviewId: existingReview.rows[0].id
+      });
     }
 
     const newReview = await pool.query(
@@ -74,9 +79,17 @@ const createReview = async (req, res) => {
       [req.user.id, userName, title, text, rating]
     );
 
+    // Add user data to response
+    const reviewWithUser = {
+      ...newReview.rows[0],
+      profile_picture: user.profile_picture,
+      full_name: user.full_name,
+      username: user.username
+    };
+
     res.status(201).json({
       message: "Review submitted successfully",
-      review: newReview.rows[0],
+      review: reviewWithUser,
     });
   } catch (error) {
     console.error("Review submission error:", error);
@@ -114,9 +127,22 @@ const updateReview = async (req, res) => {
       [title, text, rating, reviewId, req.user.id]
     );
 
+    // Get user data
+    const userResult = await pool.query(
+      "SELECT profile_picture, full_name, username FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    const reviewWithUser = {
+      ...updatedReview.rows[0],
+      profile_picture: userResult.rows[0].profile_picture,
+      full_name: userResult.rows[0].full_name,
+      username: userResult.rows[0].username
+    };
+
     res.json({
       message: "Review updated successfully",
-      review: updatedReview.rows[0],
+      review: reviewWithUser,
     });
   } catch (error) {
     console.error("Review update error:", error);
@@ -150,4 +176,32 @@ const deleteReview = async (req, res) => {
   }
 };
 
-module.exports = { getReviews, createReview, updateReview, deleteReview };
+// Get user's own review
+const getUserReview = async (req, res) => {
+  try {
+    const review = await pool.query(
+      `SELECT r.*, u.profile_picture, u.full_name, u.username
+       FROM reviews r
+       LEFT JOIN users u ON r.user_id = u.id
+       WHERE r.user_id = $1`,
+      [req.user.id]
+    );
+
+    if (review.rows.length === 0) {
+      return res.json({ hasReview: false, review: null });
+    }
+
+    res.json({ hasReview: true, review: review.rows[0] });
+  } catch (error) {
+    console.error("Get user review error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+module.exports = { 
+  getReviews, 
+  createReview, 
+  updateReview, 
+  deleteReview,
+  getUserReview 
+};

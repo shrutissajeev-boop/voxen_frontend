@@ -1,3 +1,4 @@
+// controllers/authController.js
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const pool = require("../config/db");
@@ -112,9 +113,18 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Google Callback
+// Google Callback - REDIRECT TO HOME
 const googleCallback = async (req, res) => {
   try {
+    // Check if user exists in request
+    if (!req.user) {
+      console.error("❌ No user in request after Google OAuth");
+      return res.redirect("/?error=auth_failed");
+    }
+
+    console.log("✅ Google OAuth user:", req.user);
+
+    // Generate JWT token
     const token = jwt.sign(
       {
         id: req.user.id,
@@ -125,27 +135,35 @@ const googleCallback = async (req, res) => {
       { expiresIn: "24h" }
     );
 
+    // Prepare user data
+    const userData = {
+      id: req.user.id,
+      full_name: req.user.full_name || req.user.username,
+      email: req.user.email,
+      username: req.user.username,
+      profile_picture: req.user.profile_picture || "",
+    };
+
+    console.log("✅ Redirecting with user data:", userData);
+
+    // Redirect to HOME page (changed from /chat)
     res.redirect(
-      `/home?token=${token}&user=${encodeURIComponent(
-        JSON.stringify({
-          id: req.user.id,
-          full_name: req.user.full_name,
-          email: req.user.email,
-          username: req.user.username,
-          profile_picture: req.user.profile_picture,
-        })
-      )}`
+      `/home?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`
     );
   } catch (error) {
-    console.error("Google callback error:", error);
-    res.redirect("/?error=auth_failed");
+    console.error("❌ Google callback error:", error);
+    console.error("Error stack:", error.stack);
+    res.redirect("/?error=auth_callback_failed");
   }
 };
 
 // Logout
 const logoutUser = (req, res) => {
   req.logout((err) => {
-    if (err) return res.status(500).json({ error: "Logout failed" });
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ error: "Logout failed" });
+    }
     res.json({ message: "Logout successful" });
   });
 };
