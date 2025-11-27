@@ -63,10 +63,30 @@ create_if_missing "package.json" '{
 }'
 
 # 4) Python environment
+# Detect Python (prefer python3), ensure minimum version, create venv, and install requirements
 PY_BIN=""
-if exists python3; then PY_BIN=python3; elif exists python; then PY_BIN=python; else PY_BIN=""; fi
+if exists python3; then PY_BIN=python3
+elif exists python; then PY_BIN=python
+else PY_BIN=""
+fi
 
+has_good_python=false
 if [ -n "$PY_BIN" ]; then
+  PY_VER_RAW="$($PY_BIN --version 2>&1)"
+  # Extract major.minor
+  PY_VER="$(echo "$PY_VER_RAW" | awk '{print $2}')"
+  PY_MAJOR="$(echo "$PY_VER" | cut -d. -f1 || echo 0)"
+  PY_MINOR="$(echo "$PY_VER" | cut -d. -f2 || echo 0)"
+  echo "Detected Python: $PY_BIN ($PY_VER)"
+  # Require Python >= 3.8 (adjust if you need 3.10+)
+  if [ "$PY_MAJOR" -gt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 8 ]; }; then
+    has_good_python=true
+  else
+    echo "Python $PY_VER is installed but >=3.8 is recommended. Continue at your own risk."
+  fi
+fi
+
+if [ "$has_good_python" = true ]; then
   echo "Setting up Python virtual environment..."
   if [ ! -d "venv" ]; then
     "$PY_BIN" -m venv venv
@@ -74,16 +94,34 @@ if [ -n "$PY_BIN" ]; then
   else
     echo "Found venv/"
   fi
-  # Activate and install
-  # shellcheck source=/dev/null
-  source venv/bin/activate || true
-  if [ -f requirements.txt ]; then
-    pip install --upgrade pip setuptools wheel
-    pip install -r requirements.txt || true
+
+  # Use venv's pip directly to avoid relying on shell activation in non-interactive scripts
+  if [ -f "venv/bin/pip" ]; then
+    PIP_BIN="venv/bin/pip"
+  elif [ -f "venv/Scripts/pip.exe" ]; then
+    PIP_BIN="venv/Scripts/pip.exe"
+  else
+    PIP_BIN=""
   fi
-  deactivate || true
+
+  if [ -n "$PIP_BIN" ]; then
+    echo "Upgrading pip in virtualenv..."
+    "$PIP_BIN" install --upgrade pip setuptools wheel || true
+    if [ -f requirements.txt ]; then
+      echo "Installing Python dependencies from requirements.txt..."
+      "$PIP_BIN" install -r requirements.txt || true
+    fi
+  else
+    echo "Could not find pip in the venv. You can activate the venv manually and run: pip install -r requirements.txt"
+  fi
+
+  # Usage instructions for activation
+  echo "\nTo activate the virtual environment:" 
+  echo "  Unix/macOS (bash): source venv/bin/activate"
+  echo "  Windows PowerShell: .\\venv\\Scripts\\Activate.ps1"
+  echo "  Windows CMD: venv\\Scripts\\activate.bat"
 else
-  echo "Python not found; skipping virtualenv creation. Install Python 3.10+ and re-run setup.sh to complete Python setup."
+  echo "Python 3.8+ not found. Skipping virtualenv creation. Install Python 3.8+ and re-run setup.sh to enable Python environment setup."
 fi
 
 # 5) Node install

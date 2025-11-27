@@ -22,11 +22,15 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-3. Edit `.env` to configure your database, ports, and secrets.
+### Requirements (added)
 
-4. Start services:
+- Python 3.8 or newer is required for the Python backend. `setup.sh` will attempt to detect a suitable Python interpreter (`python3` or `python`) and create a `venv/` automatically. If you have multiple Python versions installed, ensure `python3` points to a 3.8+ interpreter before running the script.
+- Node.js (LTS, e.g. 18.x or later) and `npm` are required for the Node server and dependencies.
+- PostgreSQL if you plan to use the database features (ensure it is running and reachable from `.env`).
 
-- Start the Python backend (if present):
+Activation and start commands (after running `setup.sh`):
+
+Unix/macOS (bash):
 
 ```bash
 source venv/bin/activate
@@ -34,7 +38,23 @@ pip install -r requirements.txt
 uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-- Start Node proxy:
+Windows PowerShell (activate):
+
+```powershell
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows CMD (activate):
+
+```cmd
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Start Node proxy:
 
 ```bash
 npm install
