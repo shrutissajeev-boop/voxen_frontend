@@ -1,0 +1,8 @@
+# Minimal Python dependencies for the FastAPI backend used by this project
+fastapi==0.95.0
+uvicorn[standard]==0.22.0
+python-dotenv==1.0.0
+requests==2.31.0
+# Add any additional AI/ML dependencies you use, e.g.:
+# transformers==4.35.0
+# torch==2.2.0
