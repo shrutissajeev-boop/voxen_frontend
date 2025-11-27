@@ -2,7 +2,7 @@
 
 This repository contains a Node.js/Express frontend/proxy and a Python FastAPI backend used for AI-driven chat and text-to-speech features. The project includes authentication, database integrations, static pages, and an AI proxy layer.
 
-> Use `./setup.sh` (Git Bash / WSL / macOS / Linux) to create missing files, folders, and install dependencies. If you prefer PowerShell, follow the manual steps in the "Manual setup" section.
+> Use `./setup.sh` (Git Bash / WSL / macOS / Linux) or `.\setup.ps1` (Windows PowerShell) to create missing files, folders, and install dependencies in one command.
 
 ---
 
@@ -15,12 +15,22 @@ git clone <REPO_URL>
 cd <REPO_NAME>
 ```
 
-2. Run the one-command setup (Git Bash / WSL / macOS / Linux):
+2. Run the one-command setup:
+
+**Unix/macOS (bash/zsh):**
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
+
+**Windows PowerShell:**
+
+```powershell
+.\setup.ps1
+```
+
+(If PowerShell prevents execution, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` first.)
 
 ### Requirements (added)
 
