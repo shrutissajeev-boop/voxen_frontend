@@ -85,26 +85,68 @@ node server.js
 
 ---
 
-## Configuration files
+## Environment Configuration (⚠️ IMPORTANT)
 
-- `.env` (root): environment variables used by Node and Python backends. Edit this file after running setup. Example values are created by `setup.sh`.
-- `config/db.js`: Node DB connection - ensure it reads from `.env` or update it to match your DB host/port.
-- `package.json`: Node dependencies and scripts.
-- `requirements.txt`: Python dependencies for the FastAPI backend.
+**Before running the setup script or the application, you MUST create a `.env` file with your own credentials.**
 
-Common `.env` variables:
+1. Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+2. Edit `.env` and fill in **all required values**, especially:
+
+### Required Credentials
+
+- **Google OAuth** (required for authentication):
+  - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` must be generated from [Google Cloud Console](https://console.cloud.google.com/)
+  - Steps to get them:
+    1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+    2. Create a new project (or select an existing one)
+    3. Enable the Google+ API
+    4. Create an OAuth 2.0 credential (type: "Web application")
+    5. Add `http://localhost:5500/api/auth/google/callback` to authorized redirect URIs
+    6. Copy the Client ID and Client Secret into `.env`
+  - **The app will not run without these credentials.**
+
+- **Database** (if using PostgreSQL):
+  - `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_PASS`, `DATABASE_NAME`
+  - Ensure PostgreSQL is running and the credentials are correct
+
+- **Secrets** (generate strong random strings):
+  - `SESSION_SECRET`: use a secure random value, e.g. `openssl rand -base64 32`
+
+### All `.env` variables
+
+See `.env.example` for all available configuration options. A typical `.env` looks like:
 
 ```
 PORT=5500
 DATABASE_HOST=127.0.0.1
 DATABASE_PORT=5432
-DATABASE_USER=youruser
-DATABASE_PASS=yourpass
-DATABASE_NAME=yourdb
-SESSION_SECRET=please-change-me
+DATABASE_USER=postgres
+DATABASE_PASS=yourpassword
+DATABASE_NAME=astro_auth
+SESSION_SECRET=your-secure-random-session-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:5500/api/auth/google/callback
 AI_BACKEND_URL=http://127.0.0.1:8000/api/chat
 AI_BACKEND_TIMEOUT_MS=300000
 ```
+
+**⚠️ Security Note:** Never commit `.env` to version control. It is listed in `.gitignore` by default.
+
+---
+
+## Configuration files
+
+- `.env.example`: Template for environment variables (safe to commit).
+- `.env` (root, ignored by git): Your actual credentials and configuration. **Create this before running setup.**
+- `config/db.js`: Node DB connection reads from `.env`.
+- `package.json`: Node dependencies and scripts.
+- `requirements.txt`: Python dependencies for the FastAPI backend.
 
 ---
 
