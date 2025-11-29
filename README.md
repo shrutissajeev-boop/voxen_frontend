@@ -15,11 +15,63 @@ git clone <REPO_URL>
 cd <REPO_NAME>
 ```
 
-2. Run the one-command setup (Git Bash / WSL / macOS / Linux):
+2. Run the one-command setup (recommended)
+
+This repository provides two one-command setup helpers:
+
+- `setup.sh` — for Unix, macOS, WSL, and Git Bash
+- `setup.ps1` — native PowerShell script for Windows
+
+Choose the one appropriate for your platform.
+
+Unix / macOS / WSL / Git Bash
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
+```
+
+Windows (PowerShell)
+
+```powershell
+# If PowerShell prevents script execution, run once as admin:
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\setup.ps1
+```
+
+What each script does
+
+- Creates missing folders: `data/`, `models/`, `config/`, `src/`, `uploads/profile-pictures/`.
+- Creates safe default files when missing: `.env` (only `.env.example` is committed), `requirements.txt`, `package.json`.
+- If Python 3.8+ is available, creates `venv/` and installs `requirements.txt` into it.
+- Uses the venv's `pip` directly in non-interactive runs to avoid activation issues.
+- Runs `npm install` if `npm` is available.
+- Prints clear activation instructions for your shell.
+
+Activation and start commands (after running the setup script)
+
+Unix / macOS / WSL (bash):
+
+```bash
+source venv/bin/activate
+pip install -r requirements.txt   # usually already installed by setup
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows PowerShell (activate):
+
+```powershell
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows CMD (activate):
+
+```cmd
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 3. Edit `.env` to configure your database, ports, and secrets.
@@ -102,6 +154,8 @@ AI_BACKEND_TIMEOUT_MS=300000
 
 ---
 
+## How to run the project
+
 1. Ensure the database is running and reachable at the host/port set in `.env`. For PostgreSQL default is 5432. If you changed the DB port, update `.env` and restart Node.
 
 2. Node server (Express / proxy):
@@ -121,35 +175,113 @@ AI_BACKEND_TIMEOUT_MS=300000
      - Windows PowerShell:
        ```powershell
        npm install
+       node server.js
+       ```
+
+3. Python backend (if present)
+   - Activate venv and run uvicorn:
+     ```bash
      source venv/bin/activate       # or .\venv\Scripts\Activate.ps1 on Windows
      pip install -r requirements.txt
      uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+     ```
+
+4. End-to-end
    - Start the Python backend first (so Node can proxy to it), then start Node server.
    - Use the frontend static `index.html` or `chat.html` to send requests to `http://localhost:5500/api/chat`, which will proxy to `AI_BACKEND_URL`.
 
 ---
 
-## Activating environments
+## Creating and Activating Virtual Environment
 
-Unix / macOS:
+### What is a Virtual Environment?
+
+A Python virtual environment (`venv`) is an isolated Python installation for your project. It keeps your project dependencies separate from your system Python, preventing version conflicts.
+
+### Create the Virtual Environment
+
+**Unix / macOS / WSL / Git Bash:**
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+python3 -m venv venv
 ```
 
-Windows PowerShell:
+**Windows (PowerShell or CMD):**
 
 ```powershell
 python -m venv venv
+```
+
+This command creates a `venv/` folder containing:
+- `bin/` (or `Scripts/` on Windows): Python executables, `pip`, and activation scripts
+- `lib/`: Installed packages
+- `pyvenv.cfg`: Configuration file
+
+### Activate the Virtual Environment
+
+After creating the venv, activate it before installing packages or running Python:
+
+**Unix / macOS / WSL / Git Bash:**
+
+```bash
+source venv/bin/activate
+```
+
+You should see `(venv)` prefix in your terminal prompt, indicating the venv is active.
+
+**Windows PowerShell:**
+
+```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-To deactivate:
+If you get an execution policy error, run once as admin:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Windows CMD:**
+
+```cmd
+venv\Scripts\activate.bat
+```
+
+### Install Requirements
+
+Once the venv is active, install the project dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+You should see `pip` installing packages like `fastapi`, `uvicorn`, `requests`, etc.
+
+### What to Do After Activation
+
+1. **Start the Python backend:**
+   ```bash
+   uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+   ```
+
+2. **In a new terminal/tab, activate venv again and start Node:**
+   ```bash
+   npm install
+   node server.js
+   ```
+
+3. **Use the app:**
+   - Open `http://localhost:5500` in a browser
+   - Or use `chat.html` at `http://localhost:5500/chat`
+
+### Deactivate the Virtual Environment
+
+When you're done, exit the venv:
 
 ```bash
 deactivate
 ```
+
+The terminal prompt will no longer show `(venv)`, and your system Python will be used again.
 
 ---
 
@@ -256,4 +388,3 @@ python-dotenv==1.0.0
   - Generate `setup.sh` in the repo next (it will create the files/folder structure and install dependencies),
   - Or produce a `setup.ps1` for native PowerShell users.
 
-If you want the `setup.sh` created now, tell me and I will add it and run quick validations.
