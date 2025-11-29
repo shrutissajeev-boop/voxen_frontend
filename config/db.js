@@ -38,16 +38,6 @@ pool.on('error', (err, client) => {
 
 const createTables = async () => {
     try {
-        // Drop all tables with CASCADE to handle dependencies
-        await pool.query(`
-            DROP TABLE IF EXISTS messages CASCADE;
-            DROP TABLE IF EXISTS conversations CASCADE;
-            DROP TABLE IF EXISTS reviews CASCADE;
-            DROP TABLE IF EXISTS users CASCADE;
-            DROP TABLE IF EXISTS embeddings CASCADE;
-        `);
-        console.log('✅ Dropped existing tables');
-
         // Users table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
@@ -121,13 +111,6 @@ const createTables = async () => {
             )
         `);
         console.log('✅ Embeddings table created/verified');
-
-        // Add missing columns to existing tables (migrations)
-        await pool.query(`
-            ALTER TABLE conversations 
-            ADD COLUMN IF NOT EXISTS model_used VARCHAR(100) DEFAULT 'qwen2.5:0.5b'
-        `);
-        console.log('✅ Conversations table schema updated');
 
         // Create indexes
         await pool.query(`

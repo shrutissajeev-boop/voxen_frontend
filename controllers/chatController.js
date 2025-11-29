@@ -197,14 +197,13 @@ exports.createMessage = async (req, res) => {
 ========================================== */
 exports.saveChatMessages = async (req, res) => {
   try {
-    const { userMessage, aiMessage, conversationId, userId, model_used, model_name, model } = req.body;
+    const { userMessage, aiMessage, conversationId, userId, model_used, model_name } = req.body;
 
     console.log('💾 saveChatMessages received:', { 
       conversationId, 
       userId, 
       model_used, 
       model_name,
-      model,
       hasUserMessage: !!userMessage,
       hasAiMessage: !!aiMessage
     });
@@ -225,18 +224,9 @@ exports.saveChatMessages = async (req, res) => {
     }
 
     let currentConversationId = conversationId;
-    const modelToUse = model_used || model_name || model || DEFAULT_MODEL;
+    const modelToUse = model_used || model_name || DEFAULT_MODEL;
 
-    console.log('🎯 Model to use:', modelToUse, '(from: model_used=' + model_used + ', model_name=' + model_name + ', model=' + model + ')');
-
-    // Validate required fields
-    if (!userMessage || !aiMessage) {
-      return res.status(400).json({ 
-        error: 'Missing required fields',
-        message: 'Both userMessage and aiMessage are required',
-        received: { userMessage: !!userMessage, aiMessage: !!aiMessage }
-      });
-    }
+    console.log('🎯 Model to use:', modelToUse);
 
     // Create or update conversation
     if (!currentConversationId) {

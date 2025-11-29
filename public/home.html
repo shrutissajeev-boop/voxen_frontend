@@ -992,10 +992,9 @@
                 avatar.style.display = 'block';
                 placeholder.style.display = 'none';
             } else {
-                // Use noprofile.jpg as default profile picture
-                avatar.src = '/noprofile.jpg';
-                avatar.style.display = 'block';
-                placeholder.style.display = 'none';
+                avatar.style.display = 'none';
+                placeholder.style.display = 'flex';
+                placeholder.textContent = getInitials(user.full_name || user.username);
             }
             
             updateProfileModal(user);
@@ -1411,18 +1410,14 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    // Update currentUser with the returned user data
-                    if (data) {
-                        // Merge the existing currentUser with the updated data
-                        currentUser = { ...currentUser, ...(data.user || data) };
-                        localStorage.setItem('user', JSON.stringify(currentUser));
-                        displayUserInfo(currentUser);
-                        selectedFile = null;
-                        document.getElementById('profilePictureInput').value = '';
-                        document.getElementById('profilePictureActions').style.display = 'none';
-                        showNotification('Profile picture uploaded successfully!', 'success');
-                        loadReviews();
-                    }
+                    currentUser = data.user;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    displayUserInfo(currentUser);
+                    selectedFile = null;
+                    document.getElementById('profilePictureInput').value = '';
+                    document.getElementById('profilePictureActions').style.display = 'none';
+                    showNotification('Profile picture uploaded successfully!', 'success');
+                    loadReviews();
                 } else {
                     const error = await response.json();
                     showNotification('Failed to upload profile picture: ' + (error.error || 'Unknown error'), 'error');

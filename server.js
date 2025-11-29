@@ -14,7 +14,6 @@ require("./config/passport");    // Passport configuration
 // Route imports
 const apiRoutes = require("./routes/index");   // All /api routes
 const pageRoutes = require("./routes/pages");  // Frontend page routes
-const pool = require('./config/db');  // Import the database pool
 
 const app = express();
 
@@ -24,8 +23,8 @@ const app = express();
 app.use(cors({
   origin: ["http://localhost:5000", "http://localhost:5500"],
   credentials: true,
-  allowedHeaders: ["*", "API_KEY_STORAGE_KEY"],
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,62 +51,12 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 // ---------------------
 // 🚀 Routes
 // ---------------------
 
 // Frontend Pages (static HTML)
 app.use("/", pageRoutes);
-
-// Test database connection endpoint
-app.get('/api/db-test', async (req, res) => {
-  try {
-    // Test basic connection
-    const client = await pool.connect();
-    const result = await client.query('SELECT NOW()');
-    
-    // Check if tables exist
-    const tables = await client.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `);
-    
-    // Check specific tables
-    const tableChecks = {
-      users: false,
-      conversations: false,
-      messages: false,
-      reviews: false,
-      embeddings: false
-    };
-    
-    tables.rows.forEach(row => {
-      if (tableChecks.hasOwnProperty(row.table_name)) {
-        tableChecks[row.table_name] = true;
-      }
-    });
-    
-    client.release();
-    
-    res.json({
-      status: 'success',
-      databaseTime: result.rows[0].now,
-      tables: tableChecks,
-      message: 'Database connection successful!',
-      details: 'Check the tables object to see which required tables exist.'
-    });
-  } catch (error) {
-    console.error('Database test error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Database connection failed',
-      error: error.message
-    });
-  }
-});
 
 // Backend APIs (JSON)
 app.use("/api", apiRoutes);

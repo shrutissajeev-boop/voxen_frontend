@@ -120,21 +120,30 @@
         }
 
         /* Modern Sidebar */
-        .sidebar {
+       /* Modern Sidebar */
+.sidebar {
     width: 320px;
+    min-width: 320px;
+    max-width: 320px;
     background: rgba(10, 10, 15, 0.9);
     backdrop-filter: blur(40px) saturate(200%);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    flex-shrink: 0; /* ✅ ADD THIS LINE */
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 100;
+    height: 100vh;
+    overflow: hidden;
 }
 
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
+.sidebar.hidden {
+    transform: translateX(-100%);
+    width: 0;
+    min-width: 0;
+}
 
         .sidebar-header {
             padding: 2rem 1.5rem;
@@ -235,10 +244,12 @@
         }
 
         /* Modern Search Input */
-        .search-container {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        /* Modern Search Input */
+.search-container {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0; /* ✅ Prevent shrinking */
+}
 
         .search-input-wrapper {
             position: relative;
@@ -297,25 +308,30 @@
         }
 
         /* Modern Conversation Items */
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
+        /* Modern Conversation Items */
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem;
+    min-height: 0; /* ✅ Important for flex scrolling */
+}
 
         .conversation-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 0.875rem;
-        }
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    overflow: hidden; /* ✅ Prevent overflow */
+    min-width: 0; /* ✅ Allow text truncation */
+}
 
         .conversation-item::before {
             content: '';
@@ -415,11 +431,11 @@
         }
 
         /* Modern Sidebar Footer */
-        .sidebar-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(0, 0, 0, 0.3);
-        }
+        .sidebar-header {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0; /* ✅ Prevent shrinking */
+}
 
         .user-info {
             display: flex;
@@ -485,8 +501,9 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    width: 100%; /* ✅ ADD THIS LINE */
-    min-width: 0; /* ✅ ADD THIS LINE */
+    width: 100%;
+    min-width: 0;
+    overflow: hidden; /* ✅ Prevent overflow */
 }
 
         .chat-header {
@@ -602,12 +619,9 @@
         }
 
         .message-bubble {
-            position: relative;
-            padding: 1.25rem 3rem 1.25rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-radius: 20px;
             line-height: 1.7;
-            display: inline-block;
-            width: 100%;
             position: relative;
             backdrop-filter: blur(12px);
             transition: all 0.2s ease;
@@ -1203,6 +1217,51 @@ ENHANCED THINKING ANIMATION
 }
 
         /* Responsive Design */
+        /* Responsive Design */
+@media (max-width: 968px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+        height: 100vh;
+        width: 320px;
+        box-shadow: 8px 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .sidebar.hidden {
+        transform: translateX(-100%);
+    }
+    
+    /* Add overlay when sidebar is open on mobile */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 99;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .message {
+        max-width: 92%;
+    }
+
+    .chat-input-container {
+        padding: 1.25rem 1rem 1.5rem;
+    }
+
+    .welcome-suggestions {
+        grid-template-columns: 1fr;
+    }
+}
         /* ============================================
 CUSTOM CONFIRMATION DIALOG
 ============================================ */
@@ -1623,6 +1682,402 @@ CUSTOM CONFIRMATION DIALOG
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
 }
+
+.settings-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(147, 51, 234, 0.5);
+    transform: scale(1.05);
+}
+
+/* Input focus states */
+
+/* API Model Select Dropdown - FIXED */
+#apiModelSelect {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(236, 72, 153, 0.8)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+    padding-right: 3rem;
+}
+
+#apiModelSelect:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#apiModelSelect:focus {
+    outline: none;
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Dropdown Options - FIXED */
+#apiModelSelect option {
+    background: rgba(20, 20, 30, 0.98);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+    border: none;
+}
+
+#apiModelSelect option:hover {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(147, 51, 234, 0.15));
+    color: white;
+}
+
+#apiModelSelect option:checked {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(147, 51, 234, 0.2));
+    color: white;
+    font-weight: 600;
+}
+
+/* Provider Select Dropdown - FIXED */
+#providerSelect {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(147, 51, 234, 1)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+    padding-right: 3rem;
+}
+
+#providerSelect:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#providerSelect:focus {
+    outline: none;
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+#providerSelect option {
+    background: rgba(20, 20, 30, 0.98);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+}
+
+#providerSelect option:hover {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(147, 51, 234, 0.15));
+}
+
+#providerSelect option:checked {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(147, 51, 234, 0.2));
+    color: white;
+    font-weight: 600;
+}
+
+/* API Key Input - Enhanced */
+#apiKeyInput {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 3.5rem 1rem 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+#apiKeyInput:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#apiKeyInput:focus {
+    outline: none;
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+#apiKeyInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Button hover states */
+#testConnectionBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(147, 51, 234, 0.5);
+    transform: translateY(-2px);
+}
+
+#saveSettingsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+}
+
+#testConnectionBtn:active,
+#saveSettingsBtn:active {
+    transform: scale(0.98);
+}
+
+/* Loading state */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+    }
+}
+
+/* Hover effects */
+#testConnectionBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(147, 51, 234, 0.5);
+    transform: translateY(-2px);
+}
+
+#saveSettingsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+}
+
+#providerSelect:hover,
+#apiKeyInput:hover,
+#apiModelSelect:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+}
+
+#providerSelect:focus,
+#apiKeyInput:focus,
+#apiModelSelect:focus {
+    outline: none;
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Loading state */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.6;
+    position: relative;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    right: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+/* ============================================
+   MESSAGE ACTIONS (COPY/EDIT BUTTONS)
+============================================ */
+.message-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.message-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0.5rem 0.875rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.message-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.message-action-btn:hover::before {
+    left: 100%;
+}
+
+.message-action-btn:hover {
+    background: rgba(236, 72, 153, 0.15);
+    border-color: rgba(236, 72, 153, 0.5);
+    color: rgba(236, 72, 153, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.message-action-btn:active {
+    transform: scale(0.95);
+}
+
+.message-action-btn.copied {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.5);
+    color: rgba(34, 197, 94, 1);
+}
+
+.message-action-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+/* Edit Mode Styling */
+.message-edit-container {
+    margin-top: 0.75rem;
+    display: none;
+}
+
+.message-edit-container.active {
+    display: block;
+}
+
+.message-edit-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(236, 72, 153, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    transition: all 0.3s ease;
+}
+
+.message-edit-input:focus {
+    outline: none;
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.message-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.message-edit-save,
+.message-edit-cancel {
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-family: inherit;
+}
+
+.message-edit-save {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 1), rgba(147, 51, 234, 1));
+    color: white;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.message-edit-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+.message-edit-cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.message-edit-cancel:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
     </style>
 </head>
 <body>
@@ -1645,6 +2100,7 @@ CUSTOM CONFIRMATION DIALOG
                     </div>
                     <div class="logo">VOXEN</div>
                 </div>
+                <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
                 <button class="new-chat-btn" id="newChatBtn">
                     <i data-lucide="plus" style="width:20px;height:20px;"></i>
                     New Chat
@@ -1690,80 +2146,33 @@ CUSTOM CONFIRMATION DIALOG
     <button class="sidebar-toggle" id="sidebarToggle">
         <i data-lucide="menu" style="width:22px;height:22px;"></i>
     </button>
+    
     <div class="chat-title-area">
-    <div class="chat-title" id="currentChatTitle">VOXEN</div>
-    <div class="chat-subtitle">Your intelligent companion</div>
-</div>
-    <!-- Enhanced Model Selector -->
-    <div class="model-selector-container">
-        <div class="model-selector-label">
-            <i data-lucide="cpu" style="width:16px;height:16px;"></i>
-            <span>Model:</span>
-        </div>
-        <div style="position:relative;">
-            <select id="modelSelector" class="model-selector" title="Select AI Model">
-                <option value="qwen2.5:0.5b" selected>Qwen 2.5 (0.5B) - Ultra Fast ⚡</option>
-                <option value="tinyllama:1.1b">TinyLlama (1.1B) - Compact 🔷</option>
-                <option value="gemma 3:1b">gemma 3:1b- Smart & Small 🧠</option>
-            </select>
-            <i data-lucide="chevron-down" class="model-selector-icon" style="width:18px;height:18px;"></i>
-        </div>
+        <div class="chat-title" id="currentChatTitle">VOXEN</div>
+        <div class="chat-subtitle">Your intelligent companion</div>
     </div>
 
-    <!-- API Key Input -->
-    <div class="api-key-container" style="display:flex;align-items:center;gap:0.75rem;margin-left:auto;">
-        <div class="model-selector-label">
-            <i data-lucide="key" style="width:16px;height:16px;"></i>
-            <span>API Key:</span>
-        </div>
-        <div style="position:relative;">
-            <input 
-                type="password" 
-                id="apiKeyInput" 
-                class="api-key-input" 
-                placeholder="Enter OpenRouter API key"
-                title="Enter your OpenRouter API key"
-                style="
-                    background:rgba(255,255,255,0.08);
-                    border:1px solid rgba(255,255,255,0.15);
-                    border-radius:8px;
-                    padding:0.5rem 0.75rem;
-                    color:rgba(255,255,255,0.9);
-                    width:200px;
-                    font-size:0.85rem;
-                    font-family:'Inter',sans-serif;
-                    transition:all 0.2s ease;
-                "
-                onmouseover="this.style.borderColor='rgba(236,72,153,0.5)'"
-                onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'"
-                onfocus="this.style.borderColor='rgba(236,72,153,1)';this.style.background='rgba(255,255,255,0.12)'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.08)'"
-            />
-            <i data-lucide="eye" id="toggleApiKeyVisibility" class="api-key-toggle" style="position:absolute;right:2.5rem;top:50%;transform:translateY(-50%);width:16px;height:16px;cursor:pointer;opacity:0.6;transition:opacity 0.2s;" title="Toggle visibility"></i>
-        </div>
-        <button 
-            id="saveApiKeyBtn" 
-            style="
-                background:linear-gradient(135deg, rgba(236,72,153,0.9), rgba(147,51,234,0.9));
-                border:1px solid rgba(255,255,255,0.2);
-                color:white;
-                padding:0.5rem 1rem;
-                border-radius:8px;
-                font-size:0.85rem;
-                font-weight:600;
-                cursor:pointer;
-                transition:all 0.2s ease;
-                display:flex;
-                align-items:center;
-                gap:0.5rem;
-            "
-            onmouseover="this.style.background='linear-gradient(135deg, rgba(236,72,153,1), rgba(147,51,234,1))';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(236,72,153,0.4)'"
-            onmouseout="this.style.background='linear-gradient(135deg, rgba(236,72,153,0.9), rgba(147,51,234,0.9))';this.style.transform='translateY(0)';this.style.boxShadow='none'"
-            title="Save API key to session"
-        >
-            <i data-lucide="save" style="width:14px;height:14px;"></i>
-            Save
+    <!-- Settings and Model Selector Container -->
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <!-- Settings Button (NEW!) -->
+        <button class="settings-btn" id="settingsBtn" onclick="openSettings()" title="Settings">
+            <i data-lucide="settings" style="width:22px;height:22px;"></i>
         </button>
+    <!-- Model Selector -->
+        <div class="model-selector-container">
+            <div class="model-selector-label">
+                <i data-lucide="cpu" style="width:16px;height:16px;"></i>
+                <span>Model:</span>
+            </div>
+            <div style="position:relative;">
+                <select id="modelSelector" class="model-selector" title="Select AI Model">
+                    <option value="qwen2.5:0.5b" selected>Qwen 2.5 (0.5B) - Ultra Fast ⚡</option>
+                    <option value="tinyllama:1.1b">TinyLlama (1.1B) - Compact 🔷</option>
+                    <option value="gemma3:1b">Gemma 3 (1B) - Smart & Small 🧠</option>
+                </select>
+                <i data-lucide="chevron-down" class="model-selector-icon" style="width:18px;height:18px;"></i>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1851,6 +2260,122 @@ CUSTOM CONFIRMATION DIALOG
 </div>
 
 
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="settings" style="width: 28px; height: 28px; color: rgba(236, 72, 153, 1);"></i>
+                AI Provider Settings
+            </h2>
+            <button id="closeSettingsBtn" style="background: none; border: none; color: rgba(255, 255, 255, 0.6); cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">
+                <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+            </button>
+        </div>
+
+        <!-- Provider Selection Card (ONLY ONE!) -->
+        <div style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(147, 51, 234, 0.05)); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+            <h3 style="color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="cloud" style="width: 20px; height: 20px; color: rgba(147, 51, 234, 1);"></i>
+                Choose Your AI Provider
+            </h3>
+            
+            <select id="providerSelect" style="width: 100%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.95); padding: 1rem 1.25rem; border-radius: 12px; font-size: 1rem; cursor: pointer; transition: all 0.3s; font-family: inherit; font-weight: 500;">
+                <option value="ollama">🏠 Ollama - Local AI (Free, Private)</option>
+                <option value="openrouter">🌐 OpenRouter - Multiple Models</option>
+                <option value="openai">🤖 OpenAI - GPT Models</option>
+                <option value="anthropic">🧠 Anthropic - Claude Models</option>
+            </select>
+            
+            <!-- Provider Info Cards -->
+            <div id="providerInfo" style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 10px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); line-height: 1.6;">
+                <div id="ollamaInfo" style="display: block;">
+                    <strong style="color: rgba(255, 255, 255, 0.9);">✓ Free forever</strong><br>
+                    ✓ Runs on your computer<br>
+                    ✓ Complete privacy<br>
+                    ✓ No API key needed
+                </div>
+                <div id="openrouterInfo" style="display: none;">
+                    <strong style="color: rgba(255, 255, 255, 0.9);">Access to 100+ AI models</strong><br>
+                    • Claude 3.5 Sonnet, GPT-4, Llama 3.1<br>
+                    • Pay-as-you-go pricing<br>
+                    • Get API key: <a href="https://openrouter.ai/keys" target="_blank" style="color: rgba(236, 72, 153, 1); text-decoration: none;">openrouter.ai/keys</a>
+                </div>
+                <div id="openaiInfo" style="display: none;">
+                    <strong style="color: rgba(255, 255, 255, 0.9);">OpenAI's GPT Models</strong><br>
+                    • GPT-4o, GPT-4 Turbo, GPT-3.5<br>
+                    • Requires payment method<br>
+                    • Get API key: <a href="https://platform.openai.com/api-keys" target="_blank" style="color: rgba(236, 72, 153, 1); text-decoration: none;">platform.openai.com</a>
+                </div>
+                <div id="anthropicInfo" style="display: none;">
+                    <strong style="color: rgba(255, 255, 255, 0.9);">Anthropic's Claude Models</strong><br>
+                    • Claude 3.5 Sonnet (Best reasoning)<br>
+                    • Enterprise-grade AI<br>
+                    • Get API key: <a href="https://console.anthropic.com/" target="_blank" style="color: rgba(236, 72, 153, 1); text-decoration: none;">console.anthropic.com</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Configuration (Hidden by default) -->
+        <div id="apiKeySection" style="display: none; margin-bottom: 2rem;">
+            <h3 style="color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="key" style="width: 20px; height: 20px; color: rgba(236, 72, 153, 1);"></i>
+                API Configuration
+            </h3>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.5rem;">
+                <label style="display: block; color: rgba(255, 255, 255, 0.9); font-weight: 600; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    🔑 API Key:
+                </label>
+                <div style="position: relative; margin-bottom: 1.5rem;">
+                    <input type="password" id="apiKeyInput" placeholder="Paste your API key here..." style="width: 100%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.95); padding: 1rem 3.5rem 1rem 1rem; border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; font-family: 'JetBrains Mono', monospace;">
+                    <button id="toggleApiKeyBtn" type="button" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">
+                        <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </div>
+                
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; display: flex; align-items: start; gap: 0.5rem;">
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;"></i>
+                    <span>Your API key is stored locally in your browser and never sent to our servers.</span>
+                </p>
+
+                <div id="apiModelSection">
+                    <label style="display: block; color: rgba(255, 255, 255, 0.9); font-weight: 600; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                        🤖 Select Model:
+                    </label>
+                    <select id="apiModelSelect" style="width: 100%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.95); padding: 1rem 1.25rem; border-radius: 10px; font-size: 0.95rem; cursor: pointer; font-family: inherit; transition: all 0.3s;">
+                        <option value="">Select a model...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Status -->
+        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: rgba(34, 197, 94, 1); border-radius: 50%; box-shadow: 0 0 12px rgba(34, 197, 94, 0.6); animation: pulse 2s infinite;"></div>
+                <div>
+                    <div style="font-weight: 600; color: rgba(255, 255, 255, 0.95); margin-bottom: 0.25rem; font-size: 0.95rem;">Currently Using:</div>
+                    <div id="currentProviderStatus" style="font-size: 1.05rem; color: rgba(34, 197, 94, 1); font-weight: 700;">Ollama (Local)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem;">
+            <button id="testConnectionBtn" style="flex: 1; padding: 1rem 1.5rem; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.9); border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: inherit;">
+                <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
+                Test Connection
+            </button>
+            <button id="saveSettingsBtn" style="flex: 1; padding: 1rem 1.5rem; background: linear-gradient(135deg, rgba(236, 72, 153, 1), rgba(147, 51, 234, 1)); border: none; color: white; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s; box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: inherit;">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Save Settings
+            </button>
+        </div>
+    </div>
+</div>
+
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
@@ -1861,31 +2386,15 @@ CUSTOM CONFIRMATION DIALOG
         let recognition = null;
         const API_BASE = 'http://localhost:8000';
         const API_BASE_FRONTEND = 'http://localhost:5500/api';
-        const API_KEY_STORAGE_KEY = 'voxen_api_key'; // ✅ Const for API key session storage
         let audioPlayerEl = null;
         let searchTimeout = null;
         let isSearching = false;
-        
-        // ✅ Helper function to get current API key
-        function getApiKey() {
-            return sessionStorage.getItem(API_KEY_STORAGE_KEY) || '';
-        }
-        
-        // ✅ Helper function to set API key
-        function setApiKey(key) {
-            if (key && key.trim()) {
-                sessionStorage.setItem(API_KEY_STORAGE_KEY, key);
-            } else {
-                sessionStorage.removeItem(API_KEY_STORAGE_KEY);
-            }
-        }
 
         document.addEventListener('DOMContentLoaded', function() {
     authenticateUser();
     generateMoreStars();
     initializeSearch();
     loadAvailableModels();
-    initializeApiKeyInput();
     initializeModelSelector(); // ✅ ADD THIS LINE
 });
 
@@ -1924,7 +2433,7 @@ CUSTOM CONFIRMATION DIALOG
     const modelSelector = document.getElementById('modelSelector');
     
     if (!modelSelector) {
-        console.warn('Model selector not found');
+        console.warn('⚠️ Model selector not found');
         return;
     }
     
@@ -2003,30 +2512,21 @@ CUSTOM CONFIRMATION DIALOG
 
 // ADD this new helper function to format model names
 function formatModelName(modelString) {
-    // Input: "mistral:7b" → Output: "Mistral (7B)"
-    // Input: "qwen2.5:0.5b" → Output: "Qwen 2.5 (0.5B)"
-    // Input: "phi3:3.8b" → Output: "Phi3 (3.8B)"
-    // Input: "gemma3:1b" → Output: "Gemma 3 (1B)"
-    
     if (!modelString || !modelString.includes(':')) {
         return modelString;
     }
     
     const [name, size] = modelString.split(':');
     
-    // Special handling for "gemma3" → "Gemma 3"
     let formattedName = name;
     if (name.toLowerCase().includes('gemma')) {
         formattedName = name.replace(/gemma(\d+)/i, 'Gemma $1');
     } else if (name.toLowerCase().includes('qwen')) {
-        // Handle "qwen2.5" → "Qwen 2.5"
         formattedName = name.replace(/qwen([\d.]+)/i, 'Qwen $1');
     } else {
-        // Capitalize first letter for others
         formattedName = name.charAt(0).toUpperCase() + name.slice(1);
     }
     
-    // Format size - always use parentheses for consistency
     const formattedSize = size.toUpperCase();
     return `${formattedName} (${formattedSize})`;
 }
@@ -2087,15 +2587,7 @@ function formatModelName(modelString) {
 
                 async function loadConversations() {
             try {
-                const apiKey = getApiKey();
-                const headers = { 'Content-Type': 'application/json' };
-                if (apiKey) {
-                    headers['Authorization'] = `Bearer ${apiKey}`;
-                }
-                const response = await fetch(`${API_BASE_FRONTEND}/chat/conversations/${currentUser.id}`, {
-                    method: 'GET',
-                    headers: headers
-                });
+                const response = await fetch(`${API_BASE_FRONTEND}/chat/conversations/${currentUser.id}`);
                 const data = await response.json();
                 displayConversations(data.conversations || []);
             } catch (error) {
@@ -2166,7 +2658,7 @@ function formatModelName(modelString) {
         const data = await response.json();
         
         if (data.error) {
-            console.error('Error loading conversation:', data.error);
+            console.error('❌ Error loading conversation:', data.error);
             return;
         }
         
@@ -2270,12 +2762,12 @@ function showConfirmDialog(title, message) {
         });
         
         // Close on background click
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-                resolve(false);
+        window.addEventListener('click', (event) => {
+        if (event.target === settingsModal) {
+            settingsModal.style.display = 'none';
             }
-        };
+        });
+        console.log('✅ Settings initialized');
     });
 }
 
@@ -2338,61 +2830,6 @@ function showNotification(message, type = 'info') {
 }
 
 // ============================================
-// API KEY MANAGEMENT (SESSION ONLY)
-// ============================================
-
-function initializeApiKeyInput() {
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const toggleButton = document.getElementById('toggleApiKeyVisibility');
-    const saveBtn = document.getElementById('saveApiKeyBtn');
-    
-    if (!apiKeyInput || !toggleButton || !saveBtn) {
-        console.warn('API key input, toggle button, or save button not found');
-        return;
-    }
-    
-    // Load API key from sessionStorage on page load (session only!)
-    const savedApiKey = getApiKey();
-    if (savedApiKey) {
-        apiKeyInput.value = savedApiKey;
-        console.log('✅ API key loaded from session');
-        showNotification('API key loaded from session', 'info');
-    }
-    
-    // Save API key button click handler
-    saveBtn.addEventListener('click', function() {
-        const keyValue = apiKeyInput.value.trim();
-        if (keyValue) {
-            setApiKey(keyValue);
-            console.log('✅ API key saved to session (cleared on browser close)');
-            showNotification('API key saved successfully to session', 'success');
-        } else {
-            setApiKey('');
-            console.log('🗑️ API key cleared from session');
-            showNotification('API key cleared', 'info');
-        }
-    });
-    
-    // Toggle API key visibility
-    toggleButton.addEventListener('click', function() {
-        const isPassword = apiKeyInput.type === 'password';
-        apiKeyInput.type = isPassword ? 'text' : 'password';
-        
-        // Change icon
-        const icon = isPassword ? 'eye-off' : 'eye';
-        toggleButton.dataset.icon = icon;
-        toggleButton.style.opacity = '0.8';
-        
-        // Reset opacity after toggle
-        setTimeout(() => {
-            toggleButton.style.opacity = '0.6';
-        }, 100);
-    });
-    
-    console.log('✅ API key input initialized (session storage only - uses API_KEY_STORAGE_KEY)');
-}
-
-// ============================================
 // MODEL SELECTOR WITH NOTIFICATION
 // ============================================
 
@@ -2404,54 +2841,54 @@ function initializeModelSelector() {
         return;
     }
     
-    // Store initial model
     let previousModel = modelSelector.value;
     
     modelSelector.addEventListener('change', function() {
         const selectedModel = this.value;
-        const modelName = this.options[this.selectedIndex].text;
-        
         console.log(`🎯 Model changed: ${previousModel} → ${selectedModel}`);
         
-        // Show loading state
         this.classList.add('loading');
         
-        // Simulate validation (you can add real validation here)
         setTimeout(() => {
             this.classList.remove('loading');
+            showNotification(`Now using ${formatModelName(selectedModel)}`, 'success');
             
-            // Show success notification
-            showNotification(`Now using ${modelName}`, 'success');
-            
-            // Update subtitle
-            const subtitle = document.querySelector('.chat-subtitle');
-            if (subtitle) {
-                subtitle.textContent = `Powered by ${modelName}`;
-            }
+            // ✅ Update header display
+            updateHeaderDisplay();
             
             previousModel = selectedModel;
         }, 300);
     });
     
-    // Initial subtitle update
-    const initialModelName = modelSelector.options[modelSelector.selectedIndex].text;
-    const subtitle = document.querySelector('.chat-subtitle');
-    if (subtitle) {
-        subtitle.textContent = `Powered by ${initialModelName}`;
-    }
+    // Initial update
+    updateHeaderDisplay();
 }
 
-        async function sendMessage() {
+        // REPLACE your existing sendMessage function (around line 1587) with this:
+
+async function sendMessage() {
     const input = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
     const message = input.value.trim();
     if (!message) return;
 
-    // Get selected model and API key from session
+    // ✅ GET PROVIDER SETTINGS
+    const provider = localStorage.getItem('ai_provider') || 'ollama';
+    const apiKey = localStorage.getItem('api_key') || '';
+    const savedModel = localStorage.getItem('api_model') || '';
+    
+    // Get selected model from UI (for Ollama)
     const selectedModel = document.getElementById('modelSelector').value;
-    const apiKey = getApiKey();
-    console.log(`🤖 Using model: ${selectedModel}`);
-    console.log(`🔑 API key present: ${apiKey ? 'Yes' : 'No'}`);
+    
+    // ✅ DETERMINE WHICH MODEL TO USE
+    let modelToUse = selectedModel; // Default to UI selection (Ollama)
+    
+    if (provider !== 'ollama' && savedModel) {
+        // For external providers, use saved model from settings
+        modelToUse = savedModel;
+    }
+
+    console.log(`🤖 Using provider: ${provider}, model: ${modelToUse}`);
 
     const chatMessagesEl = document.getElementById('chatMessages');
     const welcomeMsg = chatMessagesEl.querySelector('.welcome-message');
@@ -2465,8 +2902,7 @@ function initializeModelSelector() {
     input.style.height = 'auto';
     sendBtn.disabled = true;
 
-    // Show typing indicator
-        // Show enhanced typing indicator
+    // Show enhanced typing indicator
     const typingId = 'typing-' + Date.now();
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message ai';
@@ -2484,8 +2920,8 @@ function initializeModelSelector() {
                         <div class="thinking-dot"></div>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:0.25rem;">
-                        <span style="font-weight:600;font-size:0.95rem;">Thinking with ${selectedModel}</span>
-                        <span style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Generating response...</span>
+                        <span style="font-weight:600;font-size:0.95rem;">Thinking with ${modelToUse}</span>
+                        <span style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Using ${provider}...</span>
                     </div>
                 </div>
             </div>
@@ -2496,17 +2932,19 @@ function initializeModelSelector() {
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 
     try {
-        // Call AI server with selected model
+        // ✅ CALL AI SERVER WITH PROVIDER INFO
         console.log('🤖 Calling AI server (port 8000)...');
         const aiResponse = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                ...(apiKey && { 'Authorization': `Bearer ${apiKey}` })
+                'X-API-Key': apiKey || '',  // Send API key in header
+                'X-Provider': provider       // Send provider in header
             },
             body: JSON.stringify({ 
                 message,
-                model_name: selectedModel
+                model: modelToUse,
+                provider: provider  // Also send in body
             })
         });
 
@@ -2533,20 +2971,19 @@ function initializeModelSelector() {
         }
 
         // Save to database
-console.log('💾 Saving to database...', { userId: currentUser.id, model: selectedModel });
-const dbApiKey = getApiKey();
-const dbHeaders = { 'Content-Type': 'application/json' };
-if (dbApiKey) {
-    dbHeaders['Authorization'] = `Bearer ${dbApiKey}`;
-}
-const saveResponse = await fetch('http://localhost:8000/api/chat', {
-    method: 'POST',
-    headers: dbHeaders,
-    body: JSON.stringify({
-        message: message,
-        model_name: selectedModel
-    })
-});
+        console.log('💾 Saving to database (port 5500)...');
+        const saveResponse = await fetch(`${API_BASE_FRONTEND}/chat/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userMessage: message,
+                aiMessage: aiMessage,
+                conversationId: currentConversationId,
+                userId: currentUser.id,
+                model_used: modelToUse,
+                model_name: modelToUse
+            })
+        });
 
         if (!saveResponse.ok) {
             throw new Error(`Database save error: ${saveResponse.status}`);
@@ -2555,7 +2992,7 @@ const saveResponse = await fetch('http://localhost:8000/api/chat', {
         const saveData = await saveResponse.json();
         console.log('📨 Database save response:', saveData);
 
-                if (saveData.conversationId) {
+        if (saveData.conversationId) {
             const wasNewChat = !currentConversationId;
             currentConversationId = saveData.conversationId;
             
@@ -2572,7 +3009,7 @@ const saveResponse = await fetch('http://localhost:8000/api/chat', {
         console.error('❌ Error:', error);
         document.getElementById(typingId)?.remove();
         
-        showNotification('Failed to load conversation', 'error');
+        showNotification('Failed to send message: ' + error.message, 'error');
         
         const errDiv = document.createElement('div');
         errDiv.className = 'message ai';
@@ -2595,6 +3032,8 @@ async function addMessageToUI(sender, content, timestamp = null) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
+    const messageId = 'msg-' + Date.now();
+    messageDiv.id = messageId;
     
     // Generate avatar HTML based on sender type
     let avatarHTML = '';
@@ -2609,45 +3048,63 @@ async function addMessageToUI(sender, content, timestamp = null) {
         avatarHTML = `<i data-lucide="bot" style="width:20px;height:20px;color:white;"></i>`;
     }
     
-    // Create a unique ID for the message
-    const messageId = 'msg-' + Date.now();
-    
     messageDiv.innerHTML = `
         <div class="message-avatar">
             ${avatarHTML}
         </div>
         <div class="message-content">
-            <div class="message-bubble" id="${messageId}">
-                ${sender === 'ai' || sender === 'assistant' ? marked.parse(content) : escapeHtml(content)}
-                <button class="copy-btn" onclick="copyMessageContent('${messageId}')" title="Copy to clipboard">
-                    <i data-lucide="copy" width="14" height="14"></i>
-                </button>
-            </div>
-            ${timestamp ? `
-            <div class="message-time">
+            <div class="message-bubble">${sender === 'ai' || sender === 'assistant' ? marked.parse(content) : escapeHtml(content)}</div>
+            ${timestamp ? `<div class="message-time">
                 <i data-lucide="clock" style="width:12px;height:12px;"></i>
                 ${formatTime(timestamp)}
             </div>` : ''}
+            
+            <!-- ✅ NEW: Action Buttons -->
+            <div class="message-actions">
+                <button class="message-action-btn" onclick="copyMessage('${messageId}')" title="Copy message">
+                    <i data-lucide="copy"></i>
+                    <span>Copy</span>
+                </button>
+                ${sender === 'user' ? `
+                    <button class="message-action-btn" onclick="editMessage('${messageId}')" title="Edit message">
+                        <i data-lucide="edit"></i>
+                        <span>Edit</span>
+                    </button>
+                ` : ''}
+            </div>
+            
+            <!-- ✅ NEW: Edit Container (hidden by default) -->
+            ${sender === 'user' ? `
+                <div class="message-edit-container" id="edit-${messageId}">
+                    <textarea class="message-edit-input" id="input-${messageId}">${content}</textarea>
+                    <div class="message-edit-actions">
+                        <button class="message-edit-save" onclick="saveEdit('${messageId}')">
+                            <i data-lucide="check" style="width:14px;height:14px;"></i>
+                            Save
+                        </button>
+                        <button class="message-edit-cancel" onclick="cancelEdit('${messageId}')">
+                            <i data-lucide="x" style="width:14px;height:14px;"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            ` : ''}
         </div>
     `;
     
     chatMessages.appendChild(messageDiv);
     lucide.createIcons();
-}      function sendSuggestion(text) {
-            document.getElementById('chatInput').value = text;
-            document.getElementById('sendBtn').disabled = false;
-            sendMessage();
-        }
+}
 
-        // Add this to your chat.html <script> section
+ 
 // Replace the existing initializeVoiceRecognition function with this enhanced version
 
 function initializeVoiceRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.continuous = true; // Changed to continuous
-        recognition.interimResults = true; // Show interim results
+        recognition.continuous = true; // ✅ Changed to continuous
+        recognition.interimResults = true; // ✅ Show interim results
         recognition.lang = 'en-US';
 
         const voiceBtn = document.getElementById('voiceBtn');
@@ -2717,7 +3174,7 @@ function initializeVoiceRecognition() {
             const recordingStatus = document.getElementById('recordingStatus');
             recordingStatus.innerHTML = `
                 <div class="pulse-dot" style="background:#ef4444;animation:none;"></div>
-                <span style="font-weight:700;"> Microphone access denied</span>
+                <span style="font-weight:700;">❌ Microphone access denied</span>
             `;
             recordingStatus.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95))';
             
@@ -2742,7 +3199,7 @@ function initializeVoiceRecognition() {
             // Accumulate final transcripts
             if (finalTranscript) {
                 accumulatedTranscript += finalTranscript;
-                console.log(' Final transcript:', finalTranscript);
+                console.log('📝 Final transcript:', finalTranscript);
             }
 
             // Update input with accumulated + interim text
@@ -2752,16 +3209,16 @@ function initializeVoiceRecognition() {
                 document.getElementById('sendBtn').disabled = false;
             }
 
-            console.log(' Accumulated:', accumulatedTranscript);
-            console.log(' Interim:', interimTranscript);
+            console.log('🎤 Accumulated:', accumulatedTranscript);
+            console.log('⏳ Interim:', interimTranscript);
         };
 
         recognition.onend = () => {
-            console.log(' Recognition ended');
+            console.log('🛑 Recognition ended');
             
             // If still recording (not manually stopped), restart recognition
             if (isRecording) {
-                console.log(' Restarting recognition...');
+                console.log('🔄 Restarting recognition...');
                 try {
                     recognition.start();
                 } catch (err) {
@@ -2813,7 +3270,7 @@ function initializeVoiceRecognition() {
             
             // Ignore 'no-speech' and 'aborted' errors in continuous mode
             if (event.error === 'no-speech' || event.error === 'aborted') {
-                console.log(' Ignoring error:', event.error);
+                console.log('⚠️ Ignoring error:', event.error);
                 return;
             }
             
@@ -2823,21 +3280,21 @@ function initializeVoiceRecognition() {
                 case 'audio-capture':
                     recordingStatus.innerHTML = `
                         <div class="pulse-dot" style="background:#ef4444;animation:none;"></div>
-                        <span style="font-weight:700;"> Microphone not found</span>
+                        <span style="font-weight:700;">❌ Microphone not found</span>
                     `;
                     stopRecording();
                     break;
                 case 'not-allowed':
                     recordingStatus.innerHTML = `
                         <div class="pulse-dot" style="background:#ef4444;animation:none;"></div>
-                        <span style="font-weight:700;"> Microphone access denied</span>
+                        <span style="font-weight:700;">❌ Microphone access denied</span>
                     `;
                     stopRecording();
                     break;
                 default:
                     recordingStatus.innerHTML = `
                         <div class="pulse-dot" style="background:#ef4444;animation:none;"></div>
-                        <span style="font-weight:700;"> Recording error: ${event.error}</span>
+                        <span style="font-weight:700;">❌ Recording error: ${event.error}</span>
                     `;
                     stopRecording();
             }
@@ -2851,11 +3308,11 @@ function initializeVoiceRecognition() {
 
         voiceBtn.addEventListener('click', () => {
             if (isRecording) {
-                console.log(' Manual stop requested');
+                console.log('🛑 Manual stop requested');
                 isRecording = false; // Set flag first
                 recognition.stop(); // This will trigger onend
             } else {
-                console.log(' Starting recording');
+                console.log('▶️ Starting recording');
                 recognition.start();
             }
         });
@@ -2892,12 +3349,26 @@ function initializeVoiceRecognition() {
         }
 
         function setupSidebarToggle() {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('sidebarToggle');
-            toggle.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
-            });
-        }
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('sidebarToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    toggle.addEventListener('click', () => {
+        toggleSidebar();
+    });
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('hidden');
+    
+    // Toggle overlay on mobile
+    if (window.innerWidth <= 968) {
+        overlay.classList.toggle('active');
+    }
+}
 
         // ============================================
         // SEARCH FUNCTIONALITY
@@ -2956,7 +3427,7 @@ function initializeVoiceRecognition() {
             const searchStatus = document.getElementById('searchStatus');
             
             try {
-                console.log(` Searching for: "${query}"`);
+                console.log(`🔍 Searching for: "${query}"`);
                 
                 searchResults.innerHTML = '<div class="search-loading">Searching</div>';
                 searchResults.style.display = 'block';
@@ -2977,7 +3448,7 @@ function initializeVoiceRecognition() {
                 }
 
                 const data = await response.json();
-                console.log(` Found ${data.totalMessages || 0} messages in ${(data.conversations || []).length} conversations`);
+                console.log(`✅ Found ${data.totalMessages || 0} messages in ${(data.conversations || []).length} conversations`);
                 
                 // Check if there are any conversations with messages
                 const hasMessages = data.conversations && data.conversations.some(conv => 
@@ -2999,7 +3470,7 @@ function initializeVoiceRecognition() {
                 }
                 
             } catch (error) {
-                console.error(' Search error:', error);
+                console.error('❌ Search error:', error);
                 searchResults.innerHTML = `
                     <div class="search-empty">
                         <i data-lucide="alert-circle" style="width:24px;height:24px;color:rgba(239,68,68,0.8);margin-bottom:0.5rem;"></i>
@@ -3121,7 +3592,7 @@ function initializeVoiceRecognition() {
 
         async function loadConversation(conversationId) {
     try {
-        console.log(` Loading conversation ${conversationId}...`);
+        console.log(`📂 Loading conversation ${conversationId}...`);
         
         const response = await fetch(`${API_BASE_FRONTEND}/chat/messages/${conversationId}?userId=${currentUser.id}`);
         const data = await response.json();
@@ -3131,9 +3602,9 @@ function initializeVoiceRecognition() {
             return;
         }
         
-        // FIX: Update currentConversationId FIRST
+        // ✅ FIX: Update currentConversationId FIRST
         currentConversationId = conversationId;
-        console.log(` Set currentConversationId to: ${currentConversationId}`);
+        console.log(`✅ Set currentConversationId to: ${currentConversationId}`);
         
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
@@ -3149,7 +3620,7 @@ function initializeVoiceRecognition() {
             addMessageToUI(msg.sender, msg.content, msg.created_at);
         });
         
-        // FIX: Update active state in sidebar
+        // ✅ FIX: Update active state in sidebar
         document.querySelectorAll('.conversation-item').forEach(item => {
             // Use String() to handle both string and number IDs
             item.classList.toggle('active', String(item.dataset.id) === String(conversationId));
@@ -3161,7 +3632,7 @@ function initializeVoiceRecognition() {
         loadConversations().catch(err => console.error('Failed to refresh conversations:', err));
         
     } catch (error) {
-        console.error(' Error loading conversation:', error);
+        console.error('❌ Error loading conversation:', error);
     }
 }
 
@@ -3214,241 +3685,700 @@ function initializeVoiceRecognition() {
                 starsContainer.appendChild(star);
             }
         }
+
+        // Add this to your chat.html <script> section
+
+/* ==========================================
+   SETTINGS MANAGEMENT
+========================================== */
+
+// Model configurations for each provider
+const PROVIDER_MODELS = {
+    openai: [
+        { value: 'gpt-4o', label: '🚀 GPT-4o - Most Capable' },
+        { value: 'gpt-4o-mini', label: '⚡ GPT-4o Mini - Fast & Cheap' },
+        { value: 'gpt-4-turbo', label: '💎 GPT-4 Turbo' },
+        { value: 'gpt-3.5-turbo', label: '🏃 GPT-3.5 Turbo - Fastest' }
+    ],
+    anthropic: [
+        { value: 'claude-3-5-sonnet-20241022', label: '🧠 Claude 3.5 Sonnet - Best' },
+        { value: 'claude-3-opus-20240229', label: '💡 Claude 3 Opus' },
+        { value: 'claude-3-haiku-20240307', label: '⚡ Claude 3 Haiku - Fast' }
+    ],
+    openrouter: [
+        { value: 'anthropic/claude-3.5-sonnet', label: '🧠 Claude 3.5 Sonnet' },
+        { value: 'google/gemini-pro-1.5', label: '🔮 Gemini Pro 1.5' },
+        { value: 'meta-llama/llama-3.1-70b-instruct', label: '🦙 Llama 3.1 70B' },
+        { value: 'mistralai/mistral-large', label: '🌟 Mistral Large' }
+    ],
+    ollama: [] // Will be populated dynamically
+};
+
+// Provider display names
+const PROVIDER_DISPLAY = {
+    ollama: '🏠 Ollama (Local)',
+    openrouter: '🌐 OpenRouter',
+    openai: '🤖 OpenAI',
+    anthropic: '🧠 Anthropic Claude'
+};
+
+// Initialize settings on page load
+function initializeSettings() {
+    const settingsModal = document.getElementById('settingsModal');
+    const providerSelect = document.getElementById('providerSelect');
+    const apiKeySection = document.getElementById('apiKeySection');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const toggleApiKeyBtn = document.getElementById('toggleApiKeyBtn');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const testConnectionBtn = document.getElementById('testConnectionBtn');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const apiModelSelect = document.getElementById('apiModelSelect');
+
+    if (!settingsModal || !providerSelect || !saveSettingsBtn) {
+        console.warn('⚠️ Settings elements not found');
+        return;
+    }
+    // Load saved settings
+    loadSavedSettings();
+    updateHeaderDisplay();
+
+    // Provider change handler
+    // Provider change handler with info display
+providerSelect.addEventListener('change', function() {
+    const selectedProvider = this.value;
+    
+    // ✅ ADD THIS: Hide all info sections
+    document.querySelectorAll('[id$="Info"]').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // ✅ ADD THIS: Show selected provider info
+    const infoEl = document.getElementById(selectedProvider + 'Info');
+    if (infoEl) infoEl.style.display = 'block';
+    
+    if (selectedProvider === 'ollama') {
+        apiKeySection.style.display = 'none';
+    } else {
+        apiKeySection.style.display = 'block';
+        populateProviderModels(selectedProvider);
+    }
+    
+    updateCurrentStatus();
+});
+
+
+    // Toggle API key visibility
+    if (toggleApiKeyBtn) {
+        toggleApiKeyBtn.addEventListener('click', function() {
+            const input = apiKeyInput;
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            
+            lucide.createIcons();
+        });
+    }
+
+    // Save settings
+    saveSettingsBtn.addEventListener('click', saveSettings);
+
+    // Test connection
+    testConnectionBtn.addEventListener('click', testConnection);
+
+    // Close modal
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+    });
+
+    // Close on background click
+    window.addEventListener('click', (event) => {
+        if (event.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+}
+// ==========================================
+// CUSTOM DROPDOWN STYLING (FALLBACK)
+// ==========================================
+
+function styleSelectDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    // Force dark background on focus
+    select.addEventListener('focus', function() {
+        this.style.background = 'rgba(20, 20, 30, 0.98)';
+    });
+    
+    select.addEventListener('blur', function() {
+        this.style.background = 'rgba(255, 255, 255, 0.08)';
+    });
+    
+    // Style options on load
+    Array.from(select.options).forEach(option => {
+        option.style.backgroundColor = 'rgba(20, 20, 30, 0.98)';
+        option.style.color = 'rgba(255, 255, 255, 0.95)';
+        option.style.padding = '0.75rem 1rem';
+    });
+}
+
+// Call this in initializeSettings()
+document.addEventListener('DOMContentLoaded', function() {
+    styleSelectDropdown('providerSelect');
+    styleSelectDropdown('apiModelSelect');
+});
+
+// Load saved settings from localStorage
+function loadSavedSettings() {
+    const savedProvider = localStorage.getItem('ai_provider') || 'ollama';
+    const savedApiKey = localStorage.getItem('api_key') || '';
+    const savedModel = localStorage.getItem('api_model') || '';
+
+    const providerSelect = document.getElementById('providerSelect');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const apiKeySection = document.getElementById('apiKeySection');
+
+    if (providerSelect) providerSelect.value = savedProvider;
+    if (apiKeyInput) apiKeyInput.value = savedApiKey;
+
+    // Show/hide API key section
+    if (savedProvider === 'ollama') {
+        if (apiKeySection) apiKeySection.style.display = 'none';
+        document.getElementById('ollamaInfo').style.display = 'block';
+    } else {
+        if (apiKeySection) apiKeySection.style.display = 'block';
+        document.getElementById(savedProvider + 'Info').style.display = 'block';
+        populateProviderModels(savedProvider);
+        if (savedModel) {
+            const apiModelSelect = document.getElementById('apiModelSelect');
+            if (apiModelSelect) apiModelSelect.value = savedModel;
+        }
+    }
+
+    updateCurrentStatus();
+    console.log('📥 Loaded settings:', { provider: savedProvider, hasApiKey: !!savedApiKey, model: savedModel });
+}
+
+// Populate model dropdown based on provider
+function populateProviderModels(provider) {
+    const modelSelect = document.getElementById('apiModelSelect');
+    if (!modelSelect) return;
+
+    modelSelect.innerHTML = '';
+
+    const models = PROVIDER_MODELS[provider] || [];
+    
+    if (models.length === 0) {
+        modelSelect.innerHTML = '<option value="">Loading models...</option>';
+        return;
+    }
+    
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.value;
+        option.textContent = model.label;
+        modelSelect.appendChild(option);
+    });
+
+    // Select saved model if available
+    const savedModel = localStorage.getItem('api_model');
+    if (savedModel && models.some(m => m.value === savedModel)) {
+        modelSelect.value = savedModel;
+    } else if (models.length > 0) {
+        modelSelect.value = models[0].value; // Select first model by default
+    }
+
+    console.log(`📋 Populated ${models.length} models for ${provider}`);
+}
+
+
+function updateHeaderDisplay() {
+    const provider = localStorage.getItem('ai_provider') || 'ollama';
+    const model = localStorage.getItem('api_model') || '';
+    const subtitle = document.querySelector('.chat-subtitle');
+    
+    if (!subtitle) return;
+    
+    if (provider === 'ollama') {
+        // For Ollama, use the UI selector value
+        const ollamaModel = document.getElementById('modelSelector')?.value || 'qwen2.5:0.5b';
+        const displayName = formatModelName(ollamaModel);
+        subtitle.textContent = `Powered by ${displayName}`;
+    } else {
+        // For external providers, show the saved API model
+        const providerName = PROVIDER_DISPLAY[provider] || provider;
+        if (model) {
+            const modelName = getModelDisplayName(provider, model);
+            subtitle.textContent = `Powered by ${modelName}`;
+        } else {
+            subtitle.textContent = `Using ${providerName}`;
+        }
+    }
+}
+function getModelDisplayName(provider, modelValue) {
+    const models = PROVIDER_MODELS[provider] || [];
+    const found = models.find(m => m.value === modelValue);
+    
+    if (found) {
+        // Remove emoji and extra text for cleaner display
+        return found.label.replace(/[🚀⚡💎🏃🧠💡🔮🦙🌟]/g, '').trim();
+    }
+    
+    // Fallback: format the model value nicely
+    if (modelValue.includes('/')) {
+        // e.g., "anthropic/claude-3.5-sonnet" → "Claude 3.5 Sonnet"
+        const parts = modelValue.split('/');
+        return parts[parts.length - 1]
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+    
+    return modelValue;
+}
+// Save settings to localStorage
+async function saveSettings() {
+    const saveBtn = document.getElementById('saveSettingsBtn');
+    const provider = document.getElementById('providerSelect')?.value;
+    const apiKey = document.getElementById('apiKeyInput')?.value || '';
+    const model = document.getElementById('apiModelSelect')?.value || '';
+
+    if (!provider) {
+        showNotification('Invalid provider selection', 'error');
+        return;
+    }
+
+    console.log('💾 Saving settings:', { provider, model, hasApiKey: !!apiKey });
+
+    // Validate API key for non-Ollama providers
+    if (provider !== 'ollama' && !apiKey.trim()) {
+        showNotification('Please enter an API key', 'error');
+        return;
+    }
+
+    // Validate model selection for non-Ollama providers
+    if (provider !== 'ollama' && !model) {
+        showNotification('Please select a model', 'error');
+        return;
+    }
+
+    // Show loading state
+    if (saveBtn) {
+        saveBtn.classList.add('btn-loading');
+        saveBtn.disabled = true;
+    }
+
+    try {
+        // Save to localStorage
+        localStorage.setItem('ai_provider', provider);
         
-        // Add copy message content function
-        function copyMessageContent(messageId) {
-            try {
-                const messageElement = document.getElementById(messageId);
-                if (!messageElement) {
-                    console.error('Message element not found:', messageId);
-                    return;
-                }
-                
-                // Get the text content without the copy button
-                const textToCopy = messageElement.textContent.trim();
-                
-                // Use the modern Clipboard API
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    // Show success feedback
-                    const copyBtn = messageElement.querySelector('.copy-btn');
-                    if (copyBtn) {
-                        const icon = copyBtn.querySelector('i');
-                        if (icon) {
-                            // Change icon to checkmark
-                            icon.setAttribute('data-lucide', 'check');
-                            lucide.createIcons();
-                            
-                            // Revert icon back to copy after 2 seconds
-                            setTimeout(() => {
-                                icon.setAttribute('data-lucide', 'copy');
-                                lucide.createIcons();
-                            }, 2000);
-                        }
-                    }
-                    
-                    // Show success toast
-                    showToast('Message copied to clipboard!', 'success');
-                    
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                    showToast('Failed to copy text', 'error');
-                });
-                
-            } catch (error) {
-                console.error('Error in copyMessageContent:', error);
-                showToast('Error copying text', 'error');
+        if (provider !== 'ollama') {
+            localStorage.setItem('api_key', apiKey);
+            localStorage.setItem('api_model', model);
+        } else {
+            // Clear API key for Ollama
+            localStorage.removeItem('api_key');
+            localStorage.removeItem('api_model');
+        }
+
+        // Update backend config (optional - for persistence)
+        try {
+            await updateBackendConfig(provider, apiKey, model);
+            console.log('✅ Backend config updated');
+        } catch (error) {
+            console.warn('⚠️ Backend config update failed (non-critical):', error);
+        }
+
+        updateCurrentStatus();
+        updateHeaderDisplay(); // ✅ Update header display
+        showNotification('Settings saved successfully!', 'success');
+
+        // Refresh available models if Ollama
+        if (provider === 'ollama') {
+            await loadAvailableModels();
+        }
+
+        // Close modal after 1 second
+        setTimeout(() => {
+            const modal = document.getElementById('settingsModal');
+            if (modal) modal.style.display = 'none';
+        }, 1000);
+
+    } catch (error) {
+        console.error('❌ Error saving settings:', error);
+        showNotification('Failed to save settings: ' + error.message, 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.classList.remove('btn-loading');
+            saveBtn.disabled = false;
+        }
+    }
+}
+
+// Update backend configuration
+async function updateBackendConfig(provider, apiKey, model) {
+    try {
+        const response = await fetch(`${API_BASE}/api/config`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provider: provider,
+                api_key: apiKey,
+                model: model
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(errorData.error || 'Failed to update backend config');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.warn('Could not update backend config:', error);
+        throw error;
+    }
+}
+
+// Test connection to provider
+async function testConnection() {
+    const testBtn = document.getElementById('testConnectionBtn');
+    const provider = document.getElementById('providerSelect')?.value;
+    const apiKey = document.getElementById('apiKeyInput')?.value || '';
+    const model = document.getElementById('apiModelSelect')?.value || '';
+
+    if (!provider) {
+        showNotification('Please select a provider', 'warning');
+        return;
+    }
+
+    console.log('🧪 Testing connection:', { provider, model, hasApiKey: !!apiKey });
+
+    // Validate inputs
+    if (provider !== 'ollama' && !apiKey.trim()) {
+        showNotification('Please enter an API key first', 'warning');
+        return;
+    }
+
+    if (provider !== 'ollama' && !model) {
+        showNotification('Please select a model first', 'warning');
+        return;
+    }
+
+    if (testBtn) {
+        testBtn.classList.add('btn-loading');
+        testBtn.disabled = true;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/test-connection`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provider: provider,
+                api_key: apiKey,
+                model: model
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification(`✓ Connected to ${PROVIDER_DISPLAY[provider]} successfully!`, 'success');
+            console.log('✅ Connection test passed:', data);
+        } else {
+            throw new Error(data.error || data.message || 'Connection failed');
+        }
+
+    } catch (error) {
+        console.error('❌ Connection test failed:', error);
+        showNotification(`✗ Connection failed: ${error.message}`, 'error');
+    } finally {
+        if (testBtn) {
+            testBtn.classList.remove('btn-loading');
+            testBtn.disabled = false;
+        }
+    }
+}
+
+// Update current provider status display
+function updateCurrentStatus() {
+    const provider = document.getElementById('providerSelect')?.value || 'ollama';
+    const statusEl = document.getElementById('currentProviderStatus');
+    
+    if (statusEl) {
+        statusEl.textContent = PROVIDER_DISPLAY[provider] || provider;
+    }
+}
+
+// Open settings modal
+function openSettings() {
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+        settingsModal.style.display = 'block';
+        lucide.createIcons();
+    } else {
+        console.error('❌ Settings modal not found in DOM');
+        showNotification('Settings modal not available', 'error');
+    }
+}
+
+// Modified sendMessage to use saved provider
+async function sendMessageWithProvider() {
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Get provider settings
+    const provider = localStorage.getItem('ai_provider') || 'ollama';
+    const apiKey = localStorage.getItem('api_key') || '';
+    const savedModel = localStorage.getItem('api_model') || '';
+    
+    // Get selected model from UI (Ollama models)
+    const selectedModel = document.getElementById('modelSelector').value;
+    
+    // Determine which model to use
+    let modelToUse = selectedModel; // Default to UI selection
+    
+    if (provider !== 'ollama' && savedModel) {
+        // For external providers, use saved model
+        modelToUse = savedModel;
+    }
+
+    console.log(`🤖 Sending message with provider: ${provider}, model: ${modelToUse}`);
+
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const welcomeMsg = chatMessagesEl.querySelector('.welcome-message');
+    if (welcomeMsg) welcomeMsg.remove();
+
+    addMessageToUI('user', message);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    // Show typing indicator
+    const typingId = 'typing-' + Date.now();
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai';
+    typingDiv.id = typingId;
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i data-lucide="bot" style="width:20px;height:20px;color:white;"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble" style="position:relative;padding:1.5rem 2rem;">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <div class="thinking-animation">
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                        <span style="font-weight:600;font-size:0.95rem;">Thinking...</span>
+                        <span style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Using ${provider}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    chatMessagesEl.appendChild(typingDiv);
+    lucide.createIcons();
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+    try {
+        // Call AI server with provider info
+        const aiResponse = await fetch(`${API_BASE}/api/chat`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-API-Key': apiKey || '',
+                'X-Provider': provider
+            },
+            body: JSON.stringify({ 
+                message,
+                model: modelToUse,
+                provider: provider
+            })
+        });
+
+        if (!aiResponse.ok) {
+            throw new Error(`AI server error: ${aiResponse.status}`);
+        }
+
+        const aiData = await aiResponse.json();
+        const aiMessage = aiData.reply || aiData.response || 'No response';
+
+        document.getElementById(typingId)?.remove();
+        addMessageToUI('ai', aiMessage);
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+        if (aiData.audio_base64) {
+            playAudio(aiData.audio_base64);
+        } else {
+            speakText(aiMessage);
+        }
+
+        // Save to database
+        const saveResponse = await fetch(`${API_BASE_FRONTEND}/chat/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userMessage: message,
+                aiMessage: aiMessage,
+                conversationId: currentConversationId,
+                userId: currentUser.id,
+                model_used: modelToUse,
+                model_name: modelToUse
+            })
+        });
+
+        if (!saveResponse.ok) {
+            throw new Error(`Database save error: ${saveResponse.status}`);
+        }
+
+        const saveData = await saveResponse.json();
+
+        if (saveData.conversationId) {
+            const wasNewChat = !currentConversationId;
+            currentConversationId = saveData.conversationId;
+            
+            if (wasNewChat) {
+                document.getElementById('currentChatTitle').textContent = message.substring(0, 50);
+                showNotification('New conversation created successfully', 'success');
             }
         }
+
+        loadConversations().catch(err => console.error('Failed to refresh:', err));
+
+    } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById(typingId)?.remove();
         
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            try {
-                // Create toast container if it doesn't exist
-                let toastContainer = document.getElementById('toast-container');
-                if (!toastContainer) {
-                    toastContainer = document.createElement('div');
-                    toastContainer.id = 'toast-container';
-                    document.body.appendChild(toastContainer);
-                }
-                
-                // Create new toast
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                
-                // Add icon based on type
-                const icon = type === 'success' ? 'check-circle' : 'alert-circle';
-                toast.innerHTML = `
-                    <i data-lucide="${icon}" width="18" height="18"></i>
-                    <span>${message}</span>
-                `;
-                
-                // Add to container (prepend so new toasts appear on top)
-                toastContainer.insertBefore(toast, toastContainer.firstChild);
-                
-                // Force reflow to enable animation
-                void toast.offsetWidth;
-                
-                // Show toast
-                toast.classList.add('show');
-                
-                // Remove toast after delay
-                const removeToast = () => {
-                    toast.classList.remove('show');
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.remove();
-                            // Remove container if no more toasts
-                            if (toastContainer && toastContainer.children.length === 0) {
-                                toastContainer.remove();
-                            }
-                        }
-                    }, 300);
-                };
-                
-                // Auto-dismiss after 3 seconds
-                const dismissTimeout = setTimeout(removeToast, 3000);
-                
-                // Allow clicking to dismiss
-                toast.addEventListener('click', () => {
-                    clearTimeout(dismissTimeout);
-                    removeToast();
-                });
-                
-                // Initialize Lucide icons
-                lucide.createIcons();
-                
-                return toast;
-                
-            } catch (error) {
-                console.error('Error showing toast:', error);
-                // Fallback to alert if toast system fails
-                if (type === 'error') {
-                    alert(`Error: ${message}`);
-                } else {
-                    alert(message);
-                }
-            }
-        }
+        showNotification(`Failed: ${error.message}`, 'error');
         
-        // Add copy button styles
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            /* Message bubble with copy button container */
-            .message-bubble {
-                position: relative;
-                padding-right: 3rem;
-            }
-            
-            /* Base copy button styles */
-            .copy-btn {
-                position: absolute;
-                right: 0.75rem;
-                top: 0.75rem;
-                background: rgba(255, 255, 255, 0.1);
-                border: none;
-                border-radius: 4px;
-                width: 24px;
-                height: 24px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                opacity: 0;
-                transition: all 0.2s ease;
-                padding: 0;
-                margin: 0;
-                outline: none;
-                z-index: 1;
-            }
-            
-            /* Show copy button on message hover */
-            .message-bubble:hover .copy-btn {
-                opacity: 1;
-            }
-            
-            /* Hover and active states */
-            .copy-btn:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-            
-            .copy-btn:active {
-                transform: scale(0.95);
-            }
-            
-            /* Icon styles */
-            .copy-btn i {
-                width: 14px;
-                height: 14px;
-                color: rgba(255, 255, 255, 0.8);
-                transition: color 0.2s ease;
-            }
-            
-            .copy-btn:hover i {
-                color: white;
-            }
-            
-            /* Toast notification system */
-            #toast-container {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                display: flex;
-                flex-direction: column-reverse;
-                align-items: flex-end;
-                gap: 12px;
-                z-index: 10000;
-                max-width: 100%;
-                width: 350px;
-                pointer-events: none;
-            }
-            
-            /* Base toast styles */
-            .toast {
-                display: inline-flex;
-                align-items: center;
-                gap: 12px;
-                background: #1f2937;
-                color: white;
-                padding: 14px 16px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-                transform: translateX(120%);
-                opacity: 0;
-                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                width: 100%;
-                max-width: 350px;
-                pointer-events: auto;
-                cursor: pointer;
-                border-left: 4px solid transparent;
-            }
-            
-            /* Toast visibility states */
-            .toast.show {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            
-            /* Toast variants */
-            .toast.success {
-                background: #10b981;
-                border-left-color: #059669;
-            }
-            
-            .toast.error {
-                background: #ef4444;
-                border-left-color: #dc2626;
-            }
-            
-            /* Toast icon */
-            .toast i {
-                flex-shrink: 0;
-                width: 18px;
-                height: 18px;
-            }
+        const errDiv = document.createElement('div');
+        errDiv.className = 'message ai';
+        errDiv.innerHTML = `
+            <div class="message-avatar">
+                <i data-lucide="alert-circle" style="width:20px;height:20px;color:white;"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">⚠️ ${escapeHtml(error.message)}</div>
+            </div>
         `;
-        document.head.appendChild(styleElement);
+        chatMessagesEl.appendChild(errDiv);
+        lucide.createIcons();
+    } finally {
+        sendBtn.disabled = false;
+    }
+}
+
+// Initialize settings when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSettings();
+});
+
+/* ==========================================
+   MESSAGE ACTIONS: COPY & EDIT
+========================================== */
+
+function copyMessage(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    const bubbleDiv = messageDiv.querySelector('.message-bubble');
+    const content = bubbleDiv.textContent || bubbleDiv.innerText;
+    
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = messageDiv.querySelector('.message-action-btn');
+        const originalHTML = btn.innerHTML;
+        
+        // Show success state
+        btn.classList.add('copied');
+        btn.innerHTML = `
+            <i data-lucide="check" style="width:14px;height:14px;"></i>
+            <span>Copied!</span>
+        `;
+        lucide.createIcons();
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = originalHTML;
+            lucide.createIcons();
+        }, 2000);
+        
+        showNotification('Message copied to clipboard', 'success');
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        showNotification('Failed to copy message', 'error');
+    });
+}
+
+function editMessage(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    const editContainer = messageDiv.querySelector('.message-edit-container');
+    const bubble = messageDiv.querySelector('.message-bubble');
+    
+    // Toggle edit mode
+    if (editContainer.classList.contains('active')) {
+        cancelEdit(messageId);
+    } else {
+        editContainer.classList.add('active');
+        bubble.style.opacity = '0.5';
+        
+        // Focus on textarea
+        const textarea = editContainer.querySelector('.message-edit-input');
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        
+        lucide.createIcons();
+    }
+}
+
+function cancelEdit(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    const editContainer = messageDiv.querySelector('.message-edit-container');
+    const bubble = messageDiv.querySelector('.message-bubble');
+    const textarea = editContainer.querySelector('.message-edit-input');
+    
+    // Reset to original content
+    const originalContent = bubble.textContent || bubble.innerText;
+    textarea.value = originalContent;
+    
+    editContainer.classList.remove('active');
+    bubble.style.opacity = '1';
+}
+
+function saveEdit(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    const editContainer = messageDiv.querySelector('.message-edit-container');
+    const bubble = messageDiv.querySelector('.message-bubble');
+    const textarea = editContainer.querySelector('.message-edit-input');
+    const newContent = textarea.value.trim();
+    
+    if (!newContent) {
+        showNotification('Message cannot be empty', 'warning');
+        return;
+    }
+    
+    // Update the bubble content
+    bubble.textContent = newContent;
+    bubble.style.opacity = '1';
+    editContainer.classList.remove('active');
+    
+    showNotification('Message updated', 'success');
+    
+    // Note: You can add backend sync here if needed
+    // updateMessageInDatabase(messageId, newContent);
+}
     </script>
 </body>
 </html>
