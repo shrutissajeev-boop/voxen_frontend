@@ -15,11 +15,63 @@ git clone <REPO_URL>
 cd <REPO_NAME>
 ```
 
-2. Run the one-command setup (Git Bash / WSL / macOS / Linux):
+2. Run the one-command setup (recommended)
+
+This repository provides two one-command setup helpers:
+
+- `setup.sh` — for Unix, macOS, WSL, and Git Bash
+- `setup.ps1` — native PowerShell script for Windows
+
+Choose the one appropriate for your platform.
+
+Unix / macOS / WSL / Git Bash
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
+```
+
+Windows (PowerShell)
+
+```powershell
+# If PowerShell prevents script execution, run once as admin:
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\setup.ps1
+```
+
+What each script does
+
+- Creates missing folders: `data/`, `models/`, `config/`, `src/`, `uploads/profile-pictures/`.
+- Creates safe default files when missing: `.env` (only `.env.example` is committed), `requirements.txt`, `package.json`.
+- If Python 3.8+ is available, creates `venv/` and installs `requirements.txt` into it.
+- Uses the venv's `pip` directly in non-interactive runs to avoid activation issues.
+- Runs `npm install` if `npm` is available.
+- Prints clear activation instructions for your shell.
+
+Activation and start commands (after running the setup script)
+
+Unix / macOS / WSL (bash):
+
+```bash
+source venv/bin/activate
+pip install -r requirements.txt   # usually already installed by setup
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows PowerShell (activate):
+
+```powershell
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows CMD (activate):
+
+```cmd
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 3. Edit `.env` to configure your database, ports, and secrets.

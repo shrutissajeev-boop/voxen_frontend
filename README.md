@@ -2,7 +2,7 @@
 
 This repository contains a Node.js/Express frontend/proxy and a Python FastAPI backend used for AI-driven chat and text-to-speech features. The project includes authentication, database integrations, static pages, and an AI proxy layer.
 
-> Use `./setup.sh` (Git Bash / WSL / macOS / Linux) or `.\setup.ps1` (Windows PowerShell) to create missing files, folders, and install dependencies in one command.
+> Use `./setup.sh` (Git Bash / WSL / macOS / Linux) to create missing files, folders, and install dependencies. If you prefer PowerShell, follow the manual steps in the "Manual setup" section.
 
 ---
 
@@ -15,32 +15,18 @@ git clone <REPO_URL>
 cd <REPO_NAME>
 ```
 
-2. Run the one-command setup:
-
-**Unix/macOS (bash/zsh):**
+2. Run the one-command setup (Git Bash / WSL / macOS / Linux):
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-**Windows PowerShell:**
+3. Edit `.env` to configure your database, ports, and secrets.
 
-```powershell
-.\setup.ps1
-```
+4. Start services:
 
-(If PowerShell prevents execution, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` first.)
-
-### Requirements (added)
-
-- Python 3.8 or newer is required for the Python backend. `setup.sh` will attempt to detect a suitable Python interpreter (`python3` or `python`) and create a `venv/` automatically. If you have multiple Python versions installed, ensure `python3` points to a 3.8+ interpreter before running the script.
-- Node.js (LTS, e.g. 18.x or later) and `npm` are required for the Node server and dependencies.
-- PostgreSQL if you plan to use the database features (ensure it is running and reachable from `.env`).
-
-Activation and start commands (after running `setup.sh`):
-
-Unix/macOS (bash):
+- Start the Python backend (if present):
 
 ```bash
 source venv/bin/activate
@@ -48,23 +34,7 @@ pip install -r requirements.txt
 uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Windows PowerShell (activate):
-
-```powershell
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn server:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Windows CMD (activate):
-
-```cmd
-venv\Scripts\activate.bat
-pip install -r requirements.txt
-uvicorn server:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Start Node proxy:
+- Start Node proxy:
 
 ```bash
 npm install
@@ -85,68 +55,26 @@ node server.js
 
 ---
 
-## Environment Configuration (⚠️ IMPORTANT)
+## Configuration files
 
-**Before running the setup script or the application, you MUST create a `.env` file with your own credentials.**
+- `.env` (root): environment variables used by Node and Python backends. Edit this file after running setup. Example values are created by `setup.sh`.
+- `config/db.js`: Node DB connection - ensure it reads from `.env` or update it to match your DB host/port.
+- `package.json`: Node dependencies and scripts.
+- `requirements.txt`: Python dependencies for the FastAPI backend.
 
-1. Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-2. Edit `.env` and fill in **all required values**, especially:
-
-### Required Credentials
-
-- **Google OAuth** (required for authentication):
-  - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` must be generated from [Google Cloud Console](https://console.cloud.google.com/)
-  - Steps to get them:
-    1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-    2. Create a new project (or select an existing one)
-    3. Enable the Google+ API
-    4. Create an OAuth 2.0 credential (type: "Web application")
-    5. Add `http://localhost:5500/api/auth/google/callback` to authorized redirect URIs
-    6. Copy the Client ID and Client Secret into `.env`
-  - **The app will not run without these credentials.**
-
-- **Database** (if using PostgreSQL):
-  - `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_PASS`, `DATABASE_NAME`
-  - Ensure PostgreSQL is running and the credentials are correct
-
-- **Secrets** (generate strong random strings):
-  - `SESSION_SECRET`: use a secure random value, e.g. `openssl rand -base64 32`
-
-### All `.env` variables
-
-See `.env.example` for all available configuration options. A typical `.env` looks like:
+Common `.env` variables:
 
 ```
 PORT=5500
 DATABASE_HOST=127.0.0.1
 DATABASE_PORT=5432
-DATABASE_USER=postgres
-DATABASE_PASS=yourpassword
-DATABASE_NAME=astro_auth
-SESSION_SECRET=your-secure-random-session-secret
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:5500/api/auth/google/callback
+DATABASE_USER=youruser
+DATABASE_PASS=yourpass
+DATABASE_NAME=yourdb
+SESSION_SECRET=please-change-me
 AI_BACKEND_URL=http://127.0.0.1:8000/api/chat
 AI_BACKEND_TIMEOUT_MS=300000
 ```
-
-**⚠️ Security Note:** Never commit `.env` to version control. It is listed in `.gitignore` by default.
-
----
-
-## Configuration files
-
-- `.env.example`: Template for environment variables (safe to commit).
-- `.env` (root, ignored by git): Your actual credentials and configuration. **Create this before running setup.**
-- `config/db.js`: Node DB connection reads from `.env`.
-- `package.json`: Node dependencies and scripts.
-- `requirements.txt`: Python dependencies for the FastAPI backend.
 
 ---
 
@@ -174,8 +102,6 @@ AI_BACKEND_TIMEOUT_MS=300000
 
 ---
 
-## How to run the project
-
 1. Ensure the database is running and reachable at the host/port set in `.env`. For PostgreSQL default is 5432. If you changed the DB port, update `.env` and restart Node.
 
 2. Node server (Express / proxy):
@@ -195,18 +121,9 @@ AI_BACKEND_TIMEOUT_MS=300000
      - Windows PowerShell:
        ```powershell
        npm install
-       node server.js
-       ```
-
-3. Python backend (if present)
-   - Activate venv and run uvicorn:
-     ```bash
      source venv/bin/activate       # or .\venv\Scripts\Activate.ps1 on Windows
      pip install -r requirements.txt
      uvicorn server:app --host 127.0.0.1 --port 8000 --reload
-     ```
-
-4. End-to-end
    - Start the Python backend first (so Node can proxy to it), then start Node server.
    - Use the frontend static `index.html` or `chat.html` to send requests to `http://localhost:5500/api/chat`, which will proxy to `AI_BACKEND_URL`.
 
